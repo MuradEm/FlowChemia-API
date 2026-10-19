@@ -38,37 +38,43 @@ Use your existing account if one has already been provisioned. There is no
 default login and no public signup. The bootstrap command refuses a nonempty
 user table and never overwrites an existing account.
 
-With the API running, open a second PowerShell terminal in the API checkout.
-This example prompts for your own credentials, bootstraps the first account,
-creates your company, then revokes its temporary setup session. Choose a
-password of 12–128 characters; do not share it in chat or commit it to Git.
+With the API running, open a second PowerShell terminal in the API checkout:
 
 ```powershell
-$flowchemiaEmail = Read-Host 'Your email'
-$flowchemiaName = Read-Host 'Your display name'
-$flowchemiaSecret = Read-Host 'Your password (12-128 characters)' -AsSecureString
-$flowchemiaPassword = [System.Net.NetworkCredential]::new('', $flowchemiaSecret).Password
-try {
-  @{ email = $flowchemiaEmail; displayName = $flowchemiaName; password = $flowchemiaPassword } |
-    ConvertTo-Json -Compress | npm.cmd run bootstrap
-  if ($LASTEXITCODE -ne 0) { throw 'Bootstrap did not complete. Do not reset existing data.' }
-
-  $flowchemiaLoginBody = @{ email = $flowchemiaEmail; password = $flowchemiaPassword } | ConvertTo-Json
-  $flowchemiaSession = Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:3001/auth/login' -ContentType 'application/json' -Body $flowchemiaLoginBody
-  $flowchemiaHeaders = @{ Authorization = "Bearer $($flowchemiaSession.token)" }
-  try {
-    $flowchemiaCompanyName = Read-Host 'Company name'
-    $flowchemiaCompany = Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:3001/organizations' -Headers $flowchemiaHeaders -ContentType 'application/json' -Body (@{ name = $flowchemiaCompanyName } | ConvertTo-Json)
-    Write-Host "Created company: $($flowchemiaCompany.organization.name)"
-  } finally {
-    Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:3001/auth/logout' -Headers $flowchemiaHeaders | Out-Null
-  }
-} finally {
-  Remove-Variable flowchemiaPassword, flowchemiaLoginBody, flowchemiaSession, flowchemiaHeaders, flowchemiaSecret -ErrorAction SilentlyContinue
-}
+npm.cmd run bootstrap -- --interactive
 ```
 
-The company creation endpoint makes this first account its owner. New colleagues
+Enter your email, display name, company name and a password of 12–128 characters.
+The password and confirmation are hidden while you type. Setup creates the first
+account and its owner company in one transaction; it never overwrites existing
+accounts. You can then sign in through the frontend. Do not share credentials
+in chat or commit them to Git.
+
+This interactive command avoids PowerShell JSON-pipe encoding differences.
+Existing operator automation can still provide JSON on stdin; `companyName`
+is optional in JSON mode. UTF-8 and BOM-marked UTF-16 input are supported.
+
+If setup reports that an account already exists, use that account. Do not reset
+or delete the database to repeat bootstrap. If you used the earlier JSON command
+without a company name, it created only an account; create the company with the
+existing `POST /organizations` API using that account's session.
+
+If health returns 500 or Prisma reports `P1001`, check the database first:
+
+```powershell
+docker compose ps
+docker compose up -d --wait
+docker compose ps
+npm.cmd run db:migrate
+```
+
+Docker Desktop must be running. The `db` service should be `Up (healthy)`.
+If this still fails, check `docker compose logs --tail 40 db` locally and confirm
+that port 5432 is available. Keep local database credentials private; preserve
+both `.env` and the Docker volume. Successful client generation does not prove
+that PostgreSQL is running: generation does not need a live database.
+
+Interactive bootstrap makes the first account its company’s owner; the company creation API does the same when using JSON bootstrap without a company. New colleagues
 join through invitations. Teams, question approval, and surveys are configured
 using the existing APIs in [api.md](api.md), [questions.md](questions.md) and
 [question-selection.md](question-selection.md). Those administrative screens
