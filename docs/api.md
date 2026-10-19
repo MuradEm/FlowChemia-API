@@ -19,7 +19,7 @@ The API binds to loopback on port 3001 (`PORT` may override the port). `GET /hea
 
 ## First account
 
-The operator provisions exactly one account on an empty user table, then signs in and creates the company through the API. The bootstrap command never overwrites an account and refuses to create a second account. Supply JSON on stdin rather than putting a password in command-line arguments, source files or shell history. For example, from an interactive terminal:
+The operator provisions exactly one account on an empty user table. For a local terminal, run `npm run bootstrap -- --interactive`: hidden password prompts create the first account and owner company atomically. JSON stdin remains supported; an optional `companyName` creates the company too, otherwise create it later through the API. The bootstrap command never overwrites an account and refuses to create a second account. For automation, supply JSON on stdin rather than putting a password in command-line arguments, source files or shell history. Input validation and database failures produce safe diagnostics without echoing credentials. For example, from an interactive terminal:
 
 ```sh
 python3 -c 'import json,getpass,sys; print("Email: ",file=sys.stderr,end="",flush=True); email=input(); print("Name: ",file=sys.stderr,end="",flush=True); name=input(); print(json.dumps({"email":email,"displayName":name,"password":getpass.getpass("Password (12–128 characters): ")}))' | npm run bootstrap

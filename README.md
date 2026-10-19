@@ -34,11 +34,16 @@ For Windows, first-account provisioning and the connected browser application,
 follow [local frontend and backend setup](docs/local-frontend.md). The frontend
 is available in [FlowChemia](https://github.com/MuradEm/FlowChemia).
 
+For the first account on a fresh database, `npm run bootstrap -- --interactive`
+prompts for your credentials without echoing the password and creates the owner
+company atomically. It refuses to overwrite existing accounts. JSON stdin
+remains supported; validation and database errors provide safe diagnostics.
+
 ## API development
 
 See [API setup, endpoints and permissions](docs/api.md) for account bootstrap, login, invitations and scoped team management.
 
-Verified: frozen-lockfile installation (`npm ci`), schema validation, migration deployment, Prisma client generation, TypeScript compilation, six database tests, two upgrade-preservation tests, two password/token tests, five calendar tests, six question-selection tests and sixty-one HTTP integration scenarios (plus their parent tests). The HTTP tests migrate a disposable database and exercise the API without changing development data.
+Verified: frozen-lockfile installation (`npm ci`), schema validation, migration deployment, Prisma client generation, TypeScript compilation, six database tests, two upgrade-preservation tests, two password/token tests, five bootstrap-input tests, one bootstrap database integration test, five calendar tests, six question-selection tests and sixty-one HTTP integration scenarios (plus their parent tests). The HTTP and bootstrap integration tests use disposable databases without changing development data. Interactive terminal setup was also checked for successful account/company creation without password echo.
 
 `npm start` binds to loopback port 3001. `GET /health` verifies database connectivity. The [survey API](docs/surveys.md) supports configurable feedback periods, versioned questions, private assignments and transactional submission. The sibling frontend supports login and the employee survey flow; analytics endpoints remain unimplemented. Invitations use manual development delivery rather than email.
 
