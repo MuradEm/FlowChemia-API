@@ -1,0 +1,198 @@
+{
+  "id": "carla-alice-001",
+  "status": "COMPLETED",
+  "seed": 17026,
+  "modelVersion": "experimental-0.1",
+  "time": 1792324800000,
+  "author": "Carla",
+  "subject": "Alice",
+  "settings": {
+    "halfLifeDays": 42,
+    "outlierGap": 1.5,
+    "unusualWeight": 0.25,
+    "restoreAfter": 3,
+    "supportWindowDays": 42,
+    "minimumHistory": 6
+  },
+  "questions": [
+    {
+      "questionId": "standard-v1:teamwork:1",
+      "key": "Teamwork",
+      "text": "How effectively did this colleague coordinate their work with yours?"
+    },
+    {
+      "questionId": "standard-v1:communication:1",
+      "key": "Communication",
+      "text": "How clearly did this colleague explain information you needed for your work?"
+    },
+    {
+      "questionId": "standard-v1:leadership:3",
+      "key": "Leadership",
+      "text": "How well did this colleague consider others’ input when making decisions affecting the group?"
+    },
+    {
+      "questionId": "standard-v2:chemistry-enjoyment:1",
+      "key": "CHEMISTRY_ENJOYMENT",
+      "text": "How comfortable did you feel working with this colleague?"
+    },
+    {
+      "questionId": "standard-v2:chemistry-effectiveness:1",
+      "key": "CHEMISTRY_EFFECTIVENESS",
+      "text": "How effectively did you and this colleague work together to complete shared tasks?"
+    }
+  ],
+  "before": {
+    "skills": {
+      "Technical Problem Solving": 91.27222558273127,
+      "Communication": 60.21262099027089,
+      "Teamwork": 71.54792288093222,
+      "Leadership": 64.2819673035497,
+      "Reliability": 82.08912993305685
+    },
+    "chemistry": [
+      {
+        "author": "Carla",
+        "subject": "Alice",
+        "enjoyment": 61.62532461876483,
+        "effectiveness": 48.01835963253832
+      },
+      {
+        "author": "Alice",
+        "subject": "Carla",
+        "enjoyment": 57.770342065179555,
+        "effectiveness": 81.87664913386334
+      }
+    ],
+    "combinedReportedEffectiveness": 64.94750438320082
+  },
+  "answers": [
+    3,
+    2,
+    3,
+    3,
+    4
+  ],
+  "appliedEvents": [
+    {
+      "id": "carla-alice-001:1",
+      "author": "Carla",
+      "subject": "Alice",
+      "time": 1792324800000,
+      "key": "Teamwork",
+      "questionId": "standard-v1:teamwork:1",
+      "rating": 3
+    },
+    {
+      "id": "carla-alice-001:2",
+      "author": "Carla",
+      "subject": "Alice",
+      "time": 1792324800000,
+      "key": "Communication",
+      "questionId": "standard-v1:communication:1",
+      "rating": 2
+    },
+    {
+      "id": "carla-alice-001:3",
+      "author": "Carla",
+      "subject": "Alice",
+      "time": 1792324800000,
+      "key": "Leadership",
+      "questionId": "standard-v1:leadership:3",
+      "rating": 3
+    },
+    {
+      "id": "carla-alice-001:4",
+      "author": "Carla",
+      "subject": "Alice",
+      "time": 1792324800000,
+      "key": "CHEMISTRY_ENJOYMENT",
+      "questionId": "standard-v2:chemistry-enjoyment:1",
+      "rating": 3
+    },
+    {
+      "id": "carla-alice-001:5",
+      "author": "Carla",
+      "subject": "Alice",
+      "time": 1792324800000,
+      "key": "CHEMISTRY_EFFECTIVENESS",
+      "questionId": "standard-v2:chemistry-effectiveness:1",
+      "rating": 4
+    }
+  ],
+  "after": {
+    "skills": {
+      "Technical Problem Solving": 91.27222558273127,
+      "Communication": 55.473890947344096,
+      "Teamwork": 68.4259859496088,
+      "Leadership": 62.56779994887726,
+      "Reliability": 82.08912993305685
+    },
+    "chemistry": [
+      {
+        "author": "Carla",
+        "subject": "Alice",
+        "enjoyment": 58.88276201452243,
+        "effectiveness": 54.383673316207314
+      },
+      {
+        "author": "Alice",
+        "subject": "Carla",
+        "enjoyment": 57.770342065179555,
+        "effectiveness": 81.87664913386334
+      }
+    ],
+    "combinedReportedEffectiveness": 68.13016122503532
+  },
+  "diagnostics": [
+    {
+      "key": "Teamwork",
+      "rating": 3,
+      "units": 13,
+      "reviewers": 4,
+      "factor": 1,
+      "supporters": 3,
+      "afterScore": 68.4259859496088,
+      "withoutOutlierAdjustment": 68.4259859496088
+    },
+    {
+      "key": "Communication",
+      "rating": 2,
+      "units": 15,
+      "reviewers": 4,
+      "factor": 1,
+      "supporters": 1,
+      "afterScore": 55.473890947344096,
+      "withoutOutlierAdjustment": 58.43998920292472
+    },
+    {
+      "key": "Leadership",
+      "rating": 3,
+      "units": 15,
+      "reviewers": 4,
+      "factor": 1,
+      "supporters": 3,
+      "afterScore": 62.56779994887726,
+      "withoutOutlierAdjustment": 62.56779994887726
+    },
+    {
+      "key": "CHEMISTRY_ENJOYMENT",
+      "rating": 3,
+      "units": 7,
+      "reviewers": 1,
+      "factor": 1,
+      "supporters": 3,
+      "afterScore": 58.88276201452243,
+      "withoutOutlierAdjustment": 58.88276201452243
+    },
+    {
+      "key": "CHEMISTRY_EFFECTIVENESS",
+      "rating": 4,
+      "units": 7,
+      "reviewers": 1,
+      "factor": 1,
+      "supporters": 1,
+      "afterScore": 54.383673316207314,
+      "withoutOutlierAdjustment": 54.383673316207314
+    }
+  ]
+}

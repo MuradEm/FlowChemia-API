@@ -1,0 +1,439 @@
+// Internal persistence model. Never serialize these models directly to browsers.
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrganizationRole {
+  OWNER
+  HR_ADMIN
+  EMPLOYEE
+}
+
+enum TeamRole {
+  MANAGER
+  TEAM_LEADER
+}
+
+enum QuestionDimension {
+  UNSPECIFIED
+  SKILL
+  CHEMISTRY_ENJOYMENT
+  CHEMISTRY_EFFECTIVENESS
+}
+
+enum QuestionKind {
+  RATING
+}
+
+enum QuestionApprovalStatus {
+  DRAFT
+  APPROVED
+  REJECTED
+}
+
+enum QuestionApprovalOrigin {
+  HR
+  STANDARD
+  LEGACY
+}
+
+enum SurveyKind {
+  PERIODIC
+  WEEKLY
+  MILESTONE
+}
+
+model Organization {
+  surveyGenerations            SurveyGeneration[]
+  participationCredits         ParticipationCredit[]
+  feedbackPolicies             FeedbackPolicy[]
+  invitations                  Invitation[]
+  id                           String                @id @default(uuid()) @db.Uuid
+  name                         String
+  createdAt                    DateTime              @default(now())
+  Membership_organization      Membership[]          @relation("Membership_organization")
+  Team_organization            Team[]                @relation("Team_organization")
+  TeamMember_organization      TeamMember[]          @relation("TeamMember_organization")
+  TeamAccess_organization      TeamAccess[]          @relation("TeamAccess_organization")
+  Skill_organization           Skill[]               @relation("Skill_organization")
+  QuestionVersion_organization QuestionVersion[]     @relation("QuestionVersion_organization")
+  QuestionSkill_organization   QuestionSkill[]       @relation("QuestionSkill_organization")
+  Survey_organization          Survey[]              @relation("Survey_organization")
+  SurveyQuestion_organization  SurveyQuestion[]      @relation("SurveyQuestion_organization")
+  Assignment_organization      Assignment[]          @relation("Assignment_organization")
+  Answer_organization          Answer[]              @relation("Answer_organization")
+  PairInsight_organization     PairInsight[]         @relation("PairInsight_organization")
+  SkillInsight_organization    SkillInsight[]        @relation("SkillInsight_organization")
+}
+
+model User {
+  credential      PasswordCredential?
+  sessions        Session[]
+  id              String              @id @default(uuid()) @db.Uuid
+  email           String              @unique
+  displayName     String
+  createdAt       DateTime            @default(now())
+  Membership_user Membership[]        @relation("Membership_user")
+}
+
+model Membership {
+  authoredQuestions       QuestionVersion[] @relation("Question_author")
+  reviewedQuestions       QuestionVersion[] @relation("Question_reviewer")
+  participationCredits    ParticipationCredit[]
+  invitationsSent         Invitation[]          @relation("Invitation_sender")
+  id                      String                @id @default(uuid()) @db.Uuid
+  orgId                   String                @db.Uuid
+  userId                  String                @db.Uuid
+  role                    OrganizationRole      @default(EMPLOYEE)
+  active                  Boolean               @default(true)
+  createdAt               DateTime              @default(now())
+  organization            Organization          @relation("Membership_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Membership_organization_fkey")
+  user                    User                  @relation("Membership_user", fields: [userId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Membership_user_fkey")
+  TeamMember_membership   TeamMember[]          @relation("TeamMember_membership")
+  TeamAccess_membership   TeamAccess[]          @relation("TeamAccess_membership")
+  PairInsight_first       PairInsight[]         @relation("PairInsight_first")
+  PairInsight_second      PairInsight[]         @relation("PairInsight_second")
+  SkillInsight_membership SkillInsight[]        @relation("SkillInsight_membership")
+
+  @@unique([orgId, userId])
+  @@unique([orgId, id])
+}
+
+model Team {
+  id              String       @id @default(uuid()) @db.Uuid
+  orgId           String       @db.Uuid
+  name            String
+  startsAt        DateTime
+  endsAt          DateTime?
+  createdAt       DateTime     @default(now())
+  organization    Organization @relation("Team_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Team_organization_fkey")
+  TeamMember_team TeamMember[] @relation("TeamMember_team")
+  TeamAccess_team TeamAccess[] @relation("TeamAccess_team")
+  Survey_team     Survey[]     @relation("Survey_team")
+
+  @@unique([orgId, id])
+}
+
+model TeamMember {
+  id                    String       @id @default(uuid()) @db.Uuid
+  orgId                 String       @db.Uuid
+  teamId                String       @db.Uuid
+  membershipId          String       @db.Uuid
+  joinedAt              DateTime
+  leftAt                DateTime?
+  organization          Organization @relation("TeamMember_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "TeamMember_organization_fkey")
+  team                  Team         @relation("TeamMember_team", fields: [orgId, teamId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "TeamMember_team_fkey")
+  membership            Membership   @relation("TeamMember_membership", fields: [orgId, membershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "TeamMember_membership_fkey")
+  Assignment_respondent Assignment[] @relation("Assignment_respondent")
+  Assignment_subject    Assignment[] @relation("Assignment_subject")
+
+  @@unique([orgId, teamId, id])
+  @@unique([orgId, id])
+  @@index([orgId, membershipId])
+}
+
+model TeamAccess {
+  id           String       @id @default(uuid()) @db.Uuid
+  orgId        String       @db.Uuid
+  teamId       String       @db.Uuid
+  membershipId String       @db.Uuid
+  role         TeamRole
+  organization Organization @relation("TeamAccess_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "TeamAccess_organization_fkey")
+  team         Team         @relation("TeamAccess_team", fields: [orgId, teamId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "TeamAccess_team_fkey")
+  membership   Membership   @relation("TeamAccess_membership", fields: [orgId, membershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "TeamAccess_membership_fkey")
+
+  @@unique([orgId, teamId, membershipId])
+  @@unique([orgId, id])
+}
+
+model Skill {
+  id                  String          @id @default(uuid()) @db.Uuid
+  orgId               String          @db.Uuid
+  name                String
+  active              Boolean         @default(true)
+  organization        Organization    @relation("Skill_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Skill_organization_fkey")
+  QuestionSkill_skill QuestionSkill[] @relation("QuestionSkill_skill")
+  SkillInsight_skill  SkillInsight[]  @relation("SkillInsight_skill")
+
+  @@unique([orgId, name])
+  @@unique([orgId, id])
+}
+
+model QuestionVersion {
+  dimension QuestionDimension @default(UNSPECIFIED)
+  approvalStatus          QuestionApprovalStatus @default(DRAFT)
+  approvalOrigin          QuestionApprovalOrigin?
+  createdByMembershipId   String? @db.Uuid
+  reviewedByMembershipId  String? @db.Uuid
+  reviewedAt              DateTime?
+  reviewNote              String?
+  standardTemplateKey     String?
+  author                  Membership? @relation("Question_author", fields: [orgId, createdByMembershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  reviewer                Membership? @relation("Question_reviewer", fields: [orgId, reviewedByMembershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  id                      String           @id @default(uuid()) @db.Uuid
+  orgId                   String           @db.Uuid
+  questionKey             String
+  version                 Int
+  text                    String
+  kind                    QuestionKind     @default(RATING)
+  active                  Boolean          @default(true)
+  createdAt               DateTime         @default(now())
+  organization            Organization     @relation("QuestionVersion_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "QuestionVersion_organization_fkey")
+  QuestionSkill_question  QuestionSkill[]  @relation("QuestionSkill_question")
+  SurveyQuestion_question SurveyQuestion[] @relation("SurveyQuestion_question")
+
+  @@unique([orgId, questionKey, version])
+  @@unique([orgId, standardTemplateKey])
+  @@unique([orgId, id])
+}
+
+model QuestionSkill {
+  id                String          @id @default(uuid()) @db.Uuid
+  orgId             String          @db.Uuid
+  questionVersionId String          @db.Uuid
+  skillId           String          @db.Uuid
+  weight            Decimal         @db.Decimal(5, 4)
+  organization      Organization    @relation("QuestionSkill_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "QuestionSkill_organization_fkey")
+  question          QuestionVersion @relation("QuestionSkill_question", fields: [orgId, questionVersionId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "QuestionSkill_question_fkey")
+  skill             Skill           @relation("QuestionSkill_skill", fields: [orgId, skillId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "QuestionSkill_skill_fkey")
+
+  @@unique([orgId, questionVersionId, skillId])
+  @@unique([orgId, id])
+}
+
+model Survey {
+  questionSelection     String            @default("MANUAL")
+  legacyClosesAt        DateTime?
+  generationId          String?           @db.Uuid
+  generation            SurveyGeneration? @relation(fields: [orgId, generationId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  id                    String            @id @default(uuid()) @db.Uuid
+  orgId                 String            @db.Uuid
+  teamId                String            @db.Uuid
+  kind                  SurveyKind
+  opensAt               DateTime
+  closesAt              DateTime?
+  createdAt             DateTime          @default(now())
+  organization          Organization      @relation("Survey_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Survey_organization_fkey")
+  team                  Team              @relation("Survey_team", fields: [orgId, teamId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "Survey_team_fkey")
+  SurveyQuestion_survey SurveyQuestion[]  @relation("SurveyQuestion_survey")
+  Assignment_survey     Assignment[]      @relation("Assignment_survey")
+
+  @@unique([orgId, teamId, id])
+  @@unique([orgId, id])
+  @@unique([orgId, teamId, kind, opensAt])
+}
+
+model SurveyQuestion {
+  id                    String          @id @default(uuid()) @db.Uuid
+  orgId                 String          @db.Uuid
+  surveyId              String          @db.Uuid
+  questionVersionId     String          @db.Uuid
+  position              Int
+  organization          Organization    @relation("SurveyQuestion_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "SurveyQuestion_organization_fkey")
+  survey                Survey          @relation("SurveyQuestion_survey", fields: [orgId, surveyId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "SurveyQuestion_survey_fkey")
+  question              QuestionVersion @relation("SurveyQuestion_question", fields: [orgId, questionVersionId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "SurveyQuestion_question_fkey")
+  Answer_surveyQuestion Answer[]        @relation("Answer_surveyQuestion")
+
+  @@unique([orgId, surveyId, questionVersionId])
+  @@unique([orgId, surveyId, position])
+  @@unique([orgId, id])
+}
+
+enum AssignmentStatus {
+  OPEN
+  COMPLETED
+  SKIPPED
+  REPLACED
+  NO_REPLACEMENT
+}
+
+model Assignment {
+  questionVersionIds     String[]             @default([]) @db.Uuid
+  status                 AssignmentStatus     @default(OPEN)
+  closedAt               DateTime?
+  replacesAssignmentId   String?              @unique @db.Uuid
+  replaces               Assignment?          @relation("Assignment_replacement", fields: [orgId, replacesAssignmentId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  replacement            Assignment?          @relation("Assignment_replacement")
+  credit                 ParticipationCredit? @relation("Credit_assignment")
+  rootCredit             ParticipationCredit? @relation("Credit_root")
+  id                     String               @id @default(uuid()) @db.Uuid
+  orgId                  String               @db.Uuid
+  teamId                 String               @db.Uuid
+  surveyId               String               @db.Uuid
+  respondentTeamMemberId String               @db.Uuid
+  subjectTeamMemberId    String               @db.Uuid
+  submittedAt            DateTime?
+  createdAt              DateTime             @default(now())
+  organization           Organization         @relation("Assignment_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Assignment_organization_fkey")
+  survey                 Survey               @relation("Assignment_survey", fields: [orgId, teamId, surveyId], references: [orgId, teamId, id], onDelete: Restrict, onUpdate: Restrict, map: "Assignment_survey_fkey")
+  respondent             TeamMember           @relation("Assignment_respondent", fields: [orgId, teamId, respondentTeamMemberId], references: [orgId, teamId, id], onDelete: Restrict, onUpdate: Restrict, map: "Assignment_respondent_fkey")
+  subject                TeamMember           @relation("Assignment_subject", fields: [orgId, teamId, subjectTeamMemberId], references: [orgId, teamId, id], onDelete: Restrict, onUpdate: Restrict, map: "Assignment_subject_fkey")
+  Answer_assignment      Answer[]             @relation("Answer_assignment")
+
+  @@unique([orgId, surveyId, respondentTeamMemberId, subjectTeamMemberId], map: "assignment_pair_unique")
+  @@unique([orgId, surveyId, id])
+  @@unique([orgId, id])
+  @@unique([orgId, replacesAssignmentId])
+}
+
+model Answer {
+  id                String         @id @default(uuid()) @db.Uuid
+  orgId             String         @db.Uuid
+  surveyId          String         @db.Uuid
+  assignmentId      String         @db.Uuid
+  questionVersionId String         @db.Uuid
+  rating            Int?
+  organization      Organization   @relation("Answer_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "Answer_organization_fkey")
+  assignment        Assignment     @relation("Answer_assignment", fields: [orgId, surveyId, assignmentId], references: [orgId, surveyId, id], onDelete: Restrict, onUpdate: Restrict, map: "Answer_assignment_fkey")
+  surveyQuestion    SurveyQuestion @relation("Answer_surveyQuestion", fields: [orgId, surveyId, questionVersionId], references: [orgId, surveyId, questionVersionId], onDelete: Restrict, onUpdate: Restrict, map: "Answer_surveyQuestion_fkey")
+
+  @@unique([orgId, assignmentId, questionVersionId])
+  @@unique([orgId, id])
+}
+
+model PairInsight {
+  id                 String       @id @default(uuid()) @db.Uuid
+  orgId              String       @db.Uuid
+  firstMembershipId  String       @db.Uuid
+  secondMembershipId String       @db.Uuid
+  combinedScore      Float?
+  firstToSecondScore Float?
+  secondToFirstScore Float?
+  confidence         Float        @default(0)
+  observationCount   Int          @default(0)
+  modelVersion       String
+  computedAt         DateTime     @default(now())
+  organization       Organization @relation("PairInsight_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "PairInsight_organization_fkey")
+  first              Membership   @relation("PairInsight_first", fields: [orgId, firstMembershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "PairInsight_first_fkey")
+  second             Membership   @relation("PairInsight_second", fields: [orgId, secondMembershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "PairInsight_second_fkey")
+
+  @@unique([orgId, firstMembershipId, secondMembershipId, modelVersion], map: "pair_model_unique")
+  @@unique([orgId, id])
+}
+
+model SkillInsight {
+  id               String       @id @default(uuid()) @db.Uuid
+  orgId            String       @db.Uuid
+  membershipId     String       @db.Uuid
+  skillId          String       @db.Uuid
+  score            Float?
+  confidence       Float        @default(0)
+  observationCount Int          @default(0)
+  modelVersion     String
+  computedAt       DateTime     @default(now())
+  organization     Organization @relation("SkillInsight_organization", fields: [orgId], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "SkillInsight_organization_fkey")
+  membership       Membership   @relation("SkillInsight_membership", fields: [orgId, membershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "SkillInsight_membership_fkey")
+  skill            Skill        @relation("SkillInsight_skill", fields: [orgId, skillId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict, map: "SkillInsight_skill_fkey")
+
+  @@unique([orgId, membershipId, skillId, modelVersion])
+  @@unique([orgId, id])
+}
+
+model PasswordCredential {
+  userId       String @id @db.Uuid
+  passwordHash String
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Invitation {
+  id                    String           @id @default(uuid()) @db.Uuid
+  orgId                 String           @db.Uuid
+  email                 String
+  role                  OrganizationRole @default(EMPLOYEE)
+  tokenHash             String           @unique
+  invitedByMembershipId String           @db.Uuid
+  expiresAt             DateTime
+  acceptedAt            DateTime?
+  createdAt             DateTime         @default(now())
+  organization          Organization     @relation(fields: [orgId], references: [id], onDelete: Restrict)
+  sender                Membership       @relation("Invitation_sender", fields: [orgId, invitedByMembershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@index([orgId, email])
+  @@index([expiresAt])
+}
+
+enum FeedbackFrequency {
+  WEEKLY
+  FORTNIGHTLY
+  MONTHLY
+}
+
+model FeedbackPolicy {
+  questionSelection   String             @default("MANUAL")
+  frequency           FeedbackFrequency  @default(WEEKLY)
+  timeZone            String             @default("UTC")
+  weekday             Int                @default(1)
+  monthDay            Int                @default(1)
+  generationHour      Int                @default(9)
+  generationMinute    Int                @default(0)
+  anchorDate          String?
+  automaticEnabled    Boolean            @default(false)
+  automaticStartsAt   DateTime?
+  questionVersionIds  String[]           @default([]) @db.Uuid
+  generations         SurveyGeneration[]
+  id                  String             @id @default(uuid()) @db.Uuid
+  orgId               String             @db.Uuid
+  effectiveFrom       DateTime
+  periodDays          Int                @default(7)
+  colleaguesPerPeriod Int                @default(1)
+  organization        Organization       @relation(fields: [orgId], references: [id], onDelete: Restrict)
+
+  @@unique([orgId, effectiveFrom])
+  @@unique([orgId, id])
+}
+
+// Normalized participation only. Companies will define point values later.
+model ParticipationCredit {
+  id               String           @id @default(uuid()) @db.Uuid
+  orgId            String           @db.Uuid
+  membershipId     String           @db.Uuid
+  assignmentId     String           @unique @db.Uuid
+  rootAssignmentId String           @unique @db.Uuid
+  outcome          AssignmentStatus
+  percentage       Int
+  createdAt        DateTime         @default(now())
+  organization     Organization     @relation(fields: [orgId], references: [id], onDelete: Restrict)
+  membership       Membership       @relation(fields: [orgId, membershipId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  assignment       Assignment       @relation("Credit_assignment", fields: [orgId, assignmentId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  root             Assignment       @relation("Credit_root", fields: [orgId, rootAssignmentId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+
+  @@unique([orgId, assignmentId])
+  @@unique([orgId, rootAssignmentId])
+  @@index([orgId, membershipId, createdAt])
+}
+
+model SurveyGeneration {
+  questionSelection         String         @default("MANUAL")
+  id                        String         @id @default(uuid()) @db.Uuid
+  orgId                     String         @db.Uuid
+  policyId                  String         @db.Uuid
+  scheduledFor              DateTime
+  createdAt                 DateTime       @default(now())
+  questionVersionIds        String[]       @default([]) @db.Uuid
+  createdAssignments        Int            @default(0)
+  blockedEmployees          Int            @default(0)
+  employeesWithLimitedPeers Int            @default(0)
+  organization              Organization   @relation(fields: [orgId], references: [id], onDelete: Restrict)
+  policy                    FeedbackPolicy @relation(fields: [orgId, policyId], references: [orgId, id], onDelete: Restrict, onUpdate: Restrict)
+  surveys                   Survey[]
+
+  @@unique([orgId, id])
+  @@unique([orgId, scheduledFor])
+}

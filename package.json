@@ -1,0 +1,48 @@
+{
+  "name": "flowchemia-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "db:validate": "node scripts/validate-schema.mjs",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
+    "db:test": "node --env-file=.env --test tests/database.test.mjs",
+    "build": "tsc -p tsconfig.json",
+    "start": "node --env-file=.env dist/src/main.js",
+    "dev": "npm run build && npm start",
+    "test:api": "npm run build && node --env-file=.env --test tests/api.test.mjs tests/surveys.test.mjs tests/participation.test.mjs tests/reports.test.mjs tests/scheduler.test.mjs tests/questions.test.mjs tests/adaptive-surveys.test.mjs tests/question-selection.test.mjs",
+    "bootstrap": "node --env-file=.env dist/scripts/bootstrap.js",
+    "test:auth": "node --test tests/password.test.mjs",
+    "test": "npm run db:test && npm run test:migrations && npm run test:auth && npm run test:calendar && npm run test:api",
+    "test:calendar": "node --test tests/calendar.test.mjs",
+    "test:migrations": "node --env-file=.env --test tests/schedule-migration.test.mjs tests/chemistry-migration.test.mjs",
+    "simulate": "node scripts/build-simulation.mjs",
+    "test:simulation": "node --test simulation/model.test.mjs simulation/calibration.test.mjs simulation/feedback-patterns.test.mjs simulation/evidence.test.mjs simulation/fresh-team.test.mjs"
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "0.5.1",
+    "@nestjs/common": "11.1.6",
+    "@nestjs/core": "11.1.6",
+    "@nestjs/platform-express": "11.1.6",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "dotenv": "17.2.3",
+    "express": "5.1.0",
+    "pg": "8.16.3",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@prisma/internals": "7.10.1",
+    "@types/express": "5.0.3",
+    "@types/node": "24.0.0",
+    "@types/pg": "8.15.5",
+    "prisma": "7.10.1",
+    "typescript": "5.9.3"
+  }
+}

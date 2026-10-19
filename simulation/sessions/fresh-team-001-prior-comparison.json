@@ -1,0 +1,458 @@
+{
+  "sessionId": "fresh-team-001",
+  "starPoints": {
+    "1": 30,
+    "2": 50,
+    "3": 65,
+    "4": 80,
+    "5": 100
+  },
+  "prior": {
+    "score": 70,
+    "units": 5,
+    "time": 1792411200000
+  },
+  "halfLifeDays": 42,
+  "cards": [
+    {
+      "person": "Alice",
+      "skills": {
+        "Technical Problem Solving": {
+          "score": 78.15054044859497,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Communication": {
+          "score": 79.4948282767275,
+          "realUnits": 4,
+          "realReviewers": 4
+        },
+        "Teamwork": {
+          "score": 77.42783689238927,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Leadership": {
+          "score": 69.77191265674426,
+          "realUnits": 3,
+          "realReviewers": 3
+        },
+        "Reliability": {
+          "score": 77.0412257813156,
+          "realUnits": 3,
+          "realReviewers": 3
+        }
+      },
+      "chemistry": [
+        {
+          "colleague": "Bob",
+          "enjoyment": {
+            "score": 66.37742544736693,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 68.44356361841731,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 70.13845719196527
+        },
+        {
+          "colleague": "Carla",
+          "enjoyment": {
+            "score": 70.5097017894677,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 73.26455268420155,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 72.5489517248574
+        },
+        {
+          "colleague": "Dan",
+          "enjoyment": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 73.85053721170624
+        },
+        {
+          "colleague": "Elias",
+          "enjoyment": {
+            "score": 75.50005229653972,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 75.50005229653972,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 77.41933529301792
+        }
+      ]
+    },
+    {
+      "person": "Bob",
+      "skills": {
+        "Technical Problem Solving": {
+          "score": 73.07212258126182,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Communication": {
+          "score": 69.20837997709748,
+          "realUnits": 4,
+          "realReviewers": 4
+        },
+        "Teamwork": {
+          "score": 71.2988830823219,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Leadership": {
+          "score": 69.99105448110613,
+          "realUnits": 3,
+          "realReviewers": 3
+        },
+        "Reliability": {
+          "score": 68.20158723482703,
+          "realUnits": 3,
+          "realReviewers": 3
+        }
+      },
+      "chemistry": [
+        {
+          "colleague": "Alice",
+          "enjoyment": {
+            "score": 75.50005229653972,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 70.13845719196527
+        },
+        {
+          "colleague": "Carla",
+          "enjoyment": {
+            "score": 71.04673459211499,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 68.9936605910421,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 70.41350567827767
+        },
+        {
+          "colleague": "Dan",
+          "enjoyment": {
+            "score": 73.11287276316538,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 70.5097017894677,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 71.17152627749047
+        },
+        {
+          "colleague": "Elias",
+          "enjoyment": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 70.13845719196527
+        }
+      ]
+    },
+    {
+      "person": "Carla",
+      "skills": {
+        "Technical Problem Solving": {
+          "score": 73.4505365919244,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Communication": {
+          "score": 71.2988830823219,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Teamwork": {
+          "score": 71.78052172738523,
+          "realUnits": 3,
+          "realReviewers": 2
+        },
+        "Leadership": {
+          "score": 72.14131126749099,
+          "realUnits": 3,
+          "realReviewers": 3
+        },
+        "Reliability": {
+          "score": 74.03510917906968,
+          "realUnits": 3,
+          "realReviewers": 3
+        }
+      },
+      "chemistry": [
+        {
+          "colleague": "Alice",
+          "enjoyment": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 72.5489517248574
+        },
+        {
+          "colleague": "Bob",
+          "enjoyment": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 70.41350567827767
+        },
+        {
+          "colleague": "Dan",
+          "enjoyment": {
+            "score": 70.5097017894677,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 70.5097017894677,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 69.79651320335554
+        },
+        {
+          "colleague": "Elias",
+          "enjoyment": {
+            "score": 75.86772365789923,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 75.86772365789923,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 72.47552413757131
+        }
+      ]
+    },
+    {
+      "person": "Dan",
+      "skills": {
+        "Technical Problem Solving": {
+          "score": 67.66456823797623,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Communication": {
+          "score": 71.31256996564622,
+          "realUnits": 4,
+          "realReviewers": 4
+        },
+        "Teamwork": {
+          "score": 73.18256866165927,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Leadership": {
+          "score": 71.78052172738523,
+          "realUnits": 3,
+          "realReviewers": 3
+        },
+        "Reliability": {
+          "score": 72.02650010842872,
+          "realUnits": 3,
+          "realReviewers": 3
+        }
+      },
+      "chemistry": [
+        {
+          "colleague": "Alice",
+          "enjoyment": {
+            "score": 75.86772365789923,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 75.86772365789923,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 73.85053721170624
+        },
+        {
+          "colleague": "Bob",
+          "enjoyment": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 71.17152627749047
+        },
+        {
+          "colleague": "Carla",
+          "enjoyment": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 69.79651320335554
+        },
+        {
+          "colleague": "Elias",
+          "enjoyment": {
+            "score": 67.90653081577003,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 73.26455268420155,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 71.17393865072248
+        }
+      ]
+    },
+    {
+      "person": "Elias",
+      "skills": {
+        "Technical Problem Solving": {
+          "score": 79.74928139138069,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Communication": {
+          "score": 77.10139843320665,
+          "realUnits": 4,
+          "realReviewers": 4
+        },
+        "Teamwork": {
+          "score": 81.83023286685724,
+          "realUnits": 4,
+          "realReviewers": 3
+        },
+        "Leadership": {
+          "score": 82.10532753720904,
+          "realUnits": 3,
+          "realReviewers": 3
+        },
+        "Reliability": {
+          "score": 82.10532753720904,
+          "realUnits": 3,
+          "realReviewers": 3
+        }
+      },
+      "chemistry": [
+        {
+          "colleague": "Alice",
+          "enjoyment": {
+            "score": 79.33861828949613,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 79.33861828949613,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 77.41933529301792
+        },
+        {
+          "colleague": "Bob",
+          "enjoyment": {
+            "score": 63.62257455263308,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 68.44356361841731,
+            "realUnits": 2,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 70.13845719196527
+        },
+        {
+          "colleague": "Carla",
+          "enjoyment": {
+            "score": 71.83335076551325,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 72.47552413757131
+        },
+        {
+          "colleague": "Dan",
+          "enjoyment": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "effectiveness": {
+            "score": 69.08332461724339,
+            "realUnits": 1,
+            "realReviewers": 1
+          },
+          "combinedReportedEffectiveness": 71.17393865072248
+        }
+      ]
+    }
+  ]
+}

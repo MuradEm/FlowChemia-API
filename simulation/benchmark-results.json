@@ -1,0 +1,2568 @@
+{
+  "version": "reviewer-calibration-0.1",
+  "settings": {
+    "halfLifeDays": 42,
+    "outlierGap": 1.5,
+    "unusualWeight": 0.25,
+    "restoreAfter": 3,
+    "supportWindowDays": 42,
+    "minimumHistory": 6,
+    "maxAdjustment": 0.5,
+    "priorEvidence": 12,
+    "minUnits": 8,
+    "minSubjects": 3,
+    "matchWindowDays": 21,
+    "minPeerReviewers": 2
+  },
+  "seedStart": 17026,
+  "seeds": 20,
+  "description": "Mean absolute error against known synthetic current skill, in 0–100 points. Lower is better. No truth labels are passed to a scoring function.",
+  "models": {
+    "plain": "Recency only",
+    "current": "Current model",
+    "calibration": "Reviewer adjustment + recency",
+    "combined": "Reviewer adjustment + current model"
+  },
+  "results": [
+    {
+      "id": "neutral",
+      "name": "Different skills, no systematic reviewer bias",
+      "note": "Tests whether adjustment introduces error when it is unnecessary.",
+      "mae": {
+        "plain": 2.70735784325922,
+        "current": 2.7281314644110832,
+        "calibration": 2.7007420648061187,
+        "combined": 2.7207074940415636
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 16.12444271970781,
+        "current": 16.130656255784142,
+        "calibration": 16.068925014857935,
+        "combined": 16.0744217495782
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 10,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 81.26102021139336,
+          "current": 81.26102021139336,
+          "calibration": 81.61447183732065,
+          "combined": 81.61447183732065
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 60.553594616735076,
+          "current": 60.553594616735076,
+          "calibration": 61.05183597170687,
+          "combined": 61.05183597170687
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 72.67204930670687,
+          "current": 72.67204930670687,
+          "calibration": 73.10085617899202,
+          "combined": 73.10085617899202
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 58.89272388518288,
+          "current": 58.89272388518288,
+          "calibration": 59.4150943798167,
+          "combined": 59.4150943798167
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 84.17922500973218,
+          "current": 84.17922500973218,
+          "calibration": 84.44109239959283,
+          "combined": 84.44109239959283
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 22.37215814694692,
+          "current": 22.37215814694692,
+          "calibration": 22.406579971565154,
+          "combined": 22.406579971565154
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 82.76489830007425,
+          "current": 82.76489830007425,
+          "calibration": 82.14378518528758,
+          "combined": 82.14378518528758
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 62.86158889361161,
+          "current": 61.96149789054556,
+          "calibration": 62.43488397040421,
+          "combined": 61.52445129544374
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 48.1172965027478,
+          "current": 48.1172965027478,
+          "calibration": 48.17594673058525,
+          "combined": 48.17594673058525
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 69.6052279250659,
+          "current": 69.6052279250659,
+          "calibration": 69.17924651884732,
+          "combined": 69.17924651884732
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 65.94361058665133,
+          "current": 65.94361058665133,
+          "calibration": 65.53995986401905,
+          "combined": 65.53995986401905
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 32.72132218900017,
+          "current": 32.72132218900017,
+          "calibration": 32.31174573432306,
+          "combined": 32.31174573432306
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 83.97101815503476,
+          "current": 83.97101815503476,
+          "calibration": 83.41982353272708,
+          "combined": 83.41982353272708
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 88.5601580522233,
+          "current": 88.5601580522233,
+          "calibration": 87.98825653942144,
+          "combined": 87.98825653942144
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 63.04920498889649,
+          "current": 61.65288550167596,
+          "calibration": 62.57541520197923,
+          "combined": 61.21174350918246
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 71.40251179972688,
+          "current": 71.40251179972688,
+          "calibration": 71.3982287671122,
+          "combined": 71.3982287671122
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 66.15703859524507,
+          "current": 66.15703859524507,
+          "calibration": 66.20705410399114,
+          "combined": 66.20705410399114
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 28.809243672025207,
+          "current": 28.809243672025207,
+          "calibration": 28.854671742803472,
+          "combined": 28.854671742803472
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 35.80361787076301,
+          "current": 35.80361787076301,
+          "calibration": 35.85776233947831,
+          "combined": 35.85776233947831
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 80.29280661705485,
+          "current": 80.29280661705485,
+          "calibration": 80.20243701697176,
+          "combined": 80.20243701697176
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 46.228336543067385,
+          "current": 46.228336543067385,
+          "calibration": 46.07291050574535,
+          "combined": 46.07291050574535
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 81.69492607344657,
+          "current": 81.69492607344657,
+          "calibration": 81.31130769602366,
+          "combined": 81.31130769602366
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 69.64529181168272,
+          "current": 69.64529181168272,
+          "calibration": 69.33267655525255,
+          "combined": 69.33267655525255
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 80.77185562284781,
+          "current": 80.77185562284781,
+          "calibration": 80.49934477849587,
+          "combined": 80.49934477849587
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 54.391426549113156,
+          "current": 54.391426549113156,
+          "calibration": 54.227848011262715,
+          "combined": 54.227848011262715
+        }
+      ]
+    },
+    {
+      "id": "severity",
+      "name": "Harsh and generous reviewers",
+      "note": "Reviewer offsets affect every colleague, independently of their skill.",
+      "mae": {
+        "plain": 4.034457018198993,
+        "current": 4.968001686188595,
+        "calibration": 2.6439234098904314,
+        "combined": 2.6740829569373967
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 16.926696103834836,
+        "current": 17.62896128762464,
+        "calibration": 15.835530905341688,
+        "combined": 15.913877399009047
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 20,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 85.4136076177247,
+          "current": 85.4136076177247,
+          "calibration": 80.25667275787099,
+          "combined": 80.25667275787099
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 71.79316085179572,
+          "current": 71.79316085179572,
+          "calibration": 66.54879499567173,
+          "combined": 66.54879499567173
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 75.26484434432572,
+          "current": 75.26484434432572,
+          "calibration": 71.09510750358189,
+          "combined": 71.09510750358189
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 62.46475736824482,
+          "current": 63.009688255409756,
+          "calibration": 57.377585907643216,
+          "combined": 57.377585907643216
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 87.2031912691374,
+          "current": 88.36966958283494,
+          "calibration": 82.19352970664127,
+          "combined": 82.19352970664127
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 16.88438997608864,
+          "current": 16.88438997608864,
+          "calibration": 20.08611031140277,
+          "combined": 20.08611031140277
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 75.99852557294557,
+          "current": 75.99852557294557,
+          "calibration": 79.26615104445487,
+          "combined": 79.26615104445487
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 56.17301966249346,
+          "current": 53.31472719227741,
+          "calibration": 59.4797707040841,
+          "combined": 59.4797707040841
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 41.305019192740936,
+          "current": 43.8389757903876,
+          "calibration": 44.13087130092909,
+          "combined": 44.13087130092909
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 64.64615062218166,
+          "current": 67.73375383612617,
+          "calibration": 67.88255681353877,
+          "combined": 67.88255681353877
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 71.29560284948866,
+          "current": 71.29560284948866,
+          "calibration": 66.97037551096646,
+          "combined": 66.97037551096646
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 35.83681462423935,
+          "current": 41.93233640318918,
+          "calibration": 31.42990820513726,
+          "combined": 31.42990820513726
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 90.88885034890384,
+          "current": 91.86083589778482,
+          "calibration": 86.63713891542497,
+          "combined": 86.63713891542497
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 85.77149035739835,
+          "current": 89.89312103798551,
+          "calibration": 81.61191274894173,
+          "combined": 81.61191274894173
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 75.10273792570246,
+          "current": 75.10273792570246,
+          "calibration": 69.81072804619195,
+          "combined": 69.81072804619195
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 70.69320710335299,
+          "current": 70.69320710335299,
+          "calibration": 74.16958240927468,
+          "combined": 74.16958240927468
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 65.32952308431261,
+          "current": 66.84107576103358,
+          "calibration": 68.17080907101355,
+          "combined": 68.17080907101355
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 27.218498264291412,
+          "current": 27.218498264291412,
+          "calibration": 30.11344007273179,
+          "combined": 30.11344007273179
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 34.566790958395025,
+          "current": 31.491429166384822,
+          "calibration": 37.35978359668882,
+          "combined": 37.35978359668882
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 79.80001994168195,
+          "current": 79.80001994168195,
+          "calibration": 82.53248892989953,
+          "combined": 82.53248892989953
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 44.74832086912509,
+          "current": 49.28603141555041,
+          "calibration": 44.70074561980013,
+          "combined": 44.70074561980013
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 84.77521326837014,
+          "current": 84.77521326837014,
+          "calibration": 84.74007223560191,
+          "combined": 84.74007223560191
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 66.28740243671913,
+          "current": 69.64553662459961,
+          "calibration": 66.24164603755311,
+          "combined": 66.24164603755311
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 82.36072748821428,
+          "current": 82.36072748821428,
+          "calibration": 82.3158679333029,
+          "combined": 82.3158679333029
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 56.99091666303423,
+          "current": 54.76271388484024,
+          "calibration": 56.94435305207548,
+          "combined": 56.94435305207548
+        }
+      ]
+    },
+    {
+      "id": "pair",
+      "name": "Friendship and dislike specific to each pair",
+      "note": "Pair effects are not assumed to be reviewer severity.",
+      "mae": {
+        "plain": 6.255557046657359,
+        "current": 8.873713461415097,
+        "calibration": 7.947210265642363,
+        "combined": 12.00999880648786
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 17.050597875277028,
+        "current": 19.55392097458881,
+        "calibration": 17.913635202311887,
+        "combined": 21.997165571597073
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 0,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 77.84449997214351,
+          "current": 78.6289486420862,
+          "calibration": 79.27816739137343,
+          "combined": 80.05072869540737
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 60.55359461673506,
+          "current": 67.97262214439306,
+          "calibration": 62.010862024626924,
+          "combined": 68.8869797048603
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 72.42165239111073,
+          "current": 72.42165239111073,
+          "calibration": 73.9558117944326,
+          "combined": 73.9558117944326
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 59.90702241453615,
+          "current": 54.39987716334795,
+          "calibration": 61.37048994275639,
+          "combined": 69.52284817470932
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 81.34735909387246,
+          "current": 83.33808963432408,
+          "calibration": 82.79257700978417,
+          "combined": 84.7554238752283
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 14.228743363338308,
+          "current": 5.423494183777961,
+          "calibration": 17.26930216789731,
+          "combined": 5.592040609198645
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 69.75660849703436,
+          "current": 69.75660849703436,
+          "calibration": 61.563353745874934,
+          "combined": 61.563353745874934
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 51.741896434087145,
+          "current": 44.12315050024793,
+          "calibration": 44.001330977227425,
+          "combined": 32.12624259690977
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 39.319101406725764,
+          "current": 30.97812472072581,
+          "calibration": 34.95443606268891,
+          "combined": 20.554606539420778
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 54.846642191638715,
+          "current": 51.537946316767545,
+          "calibration": 48.47479728077636,
+          "combined": 48.47479728077636
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 68.22063379636134,
+          "current": 70.85109621183403,
+          "calibration": 69.89761346853632,
+          "combined": 61.0850461604298
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 33.4378818524794,
+          "current": 33.4378818524794,
+          "calibration": 35.16375056973055,
+          "combined": 35.16375056973055
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 82.18073286316128,
+          "current": 82.18073286316128,
+          "calibration": 83.82453071297648,
+          "combined": 83.82453071297648
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 81.35169113521712,
+          "current": 81.35169113521712,
+          "calibration": 83.00920124196591,
+          "combined": 83.00920124196591
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 68.33569216081905,
+          "current": 70.07759023103415,
+          "calibration": 69.9158894868047,
+          "combined": 71.57642925695784
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 58.90518790265431,
+          "current": 56.38412696918259,
+          "calibration": 51.77833182979506,
+          "combined": 45.05783929376182
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 56.047987996121684,
+          "current": 51.12442475145167,
+          "calibration": 49.39529506613681,
+          "combined": 39.25924335349455
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 17.444837693262787,
+          "current": 10.2789846159753,
+          "calibration": 18.337542038717636,
+          "combined": 8.616758517483476
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 25.934257305519726,
+          "current": 24.00423139150998,
+          "calibration": 23.80110795109287,
+          "combined": 13.720635952537469
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 68.83661817539195,
+          "current": 70.54747629851894,
+          "calibration": 60.877958922081376,
+          "combined": 62.651660987812264
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 46.228336543067385,
+          "current": 46.72051484856393,
+          "calibration": 47.39735425416433,
+          "combined": 47.85765454718638
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 74.70370214749884,
+          "current": 76.82175041667674,
+          "calibration": 75.83762895089514,
+          "combined": 77.90030860114356
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 65.8498448469797,
+          "current": 65.8498448469797,
+          "calibration": 66.92195603534137,
+          "combined": 66.92195603534137
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 75.26515536171769,
+          "current": 75.95519721836199,
+          "calibration": 76.31311811417835,
+          "combined": 76.98895359319707
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 60.061323357918006,
+          "current": 57.204591290501696,
+          "calibration": 61.26687520902401,
+          "combined": 58.50187113731696
+        }
+      ]
+    },
+    {
+      "id": "mixed",
+      "name": "Reviewer tendencies plus pair effects",
+      "note": "Both sources of bias are present.",
+      "mae": {
+        "plain": 8.419176191091196,
+        "current": 12.003731500072792,
+        "calibration": 7.496904584176458,
+        "combined": 11.216134246753612
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 18.84942833970586,
+        "current": 22.35554648911458,
+        "calibration": 16.853523871369635,
+        "combined": 20.944112613071564
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 17,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 84.59657749239594,
+          "current": 84.59657749239594,
+          "calibration": 79.96201067301594,
+          "combined": 81.43674081155059
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 69.46473369988878,
+          "current": 71.0042194677531,
+          "calibration": 65.19190360573943,
+          "combined": 66.84412844707191
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 79.54541848644097,
+          "current": 79.54541848644097,
+          "calibration": 76.45839143211805,
+          "combined": 77.46988632090779
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 62.01915525052154,
+          "current": 58.50700760184212,
+          "calibration": 58.36600454127006,
+          "combined": 61.50876370915537
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 90.6843117090929,
+          "current": 92.12167280531777,
+          "calibration": 85.26556212333854,
+          "combined": 86.7774795212674
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 15.749614054422324,
+          "current": 5.976346062722398,
+          "calibration": 20.259533208199144,
+          "combined": 8.555765711318768
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 60.96820257409759,
+          "current": 51.946523318118,
+          "calibration": 60.08748339530442,
+          "combined": 50.862237650726804
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 45.98577469091196,
+          "current": 33.832519506052016,
+          "calibration": 45.08016348228079,
+          "combined": 32.72314486188543
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 33.66168647006599,
+          "current": 17.722705852922573,
+          "calibration": 35.253683402225114,
+          "combined": 35.253683402225114
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 53.85780957285559,
+          "current": 58.05220280709108,
+          "calibration": 52.996952373107206,
+          "combined": 57.08302558246952
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 72.3099013788419,
+          "current": 72.3099013788419,
+          "calibration": 69.73541056188024,
+          "combined": 69.73541056188024
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 36.288218926000916,
+          "current": 29.9828966399209,
+          "calibration": 34.50834099400804,
+          "combined": 34.50834099400804
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 84.46995395297591,
+          "current": 84.46995395297591,
+          "calibration": 80.43929771127469,
+          "combined": 82.49937837388612
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 83.26735143516844,
+          "current": 83.26735143516844,
+          "calibration": 79.33686510070052,
+          "combined": 80.22412173548348
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 72.37795119407264,
+          "current": 72.37795119407264,
+          "calibration": 68.54979390964576,
+          "combined": 68.54979390964576
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 53.18790096342041,
+          "current": 45.48357835098472,
+          "calibration": 52.030183363596116,
+          "combined": 44.135323901356486
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 49.239052124967884,
+          "current": 41.938921950819775,
+          "calibration": 48.666774195132504,
+          "combined": 37.882930884560594
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 23.458323676276787,
+          "current": 12.113269505974799,
+          "calibration": 24.470287016313137,
+          "combined": 12.265908295321859
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 24.335442801613826,
+          "current": 12.239981613263328,
+          "calibration": 24.79200958347032,
+          "combined": 13.423635124982935
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 61.17754855335319,
+          "current": 51.99246588070575,
+          "calibration": 60.458476977104816,
+          "combined": 51.103267699122604
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 44.7483208691251,
+          "current": 44.7483208691251,
+          "calibration": 46.19621870104695,
+          "combined": 46.19621870104695
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 83.0137841243516,
+          "current": 83.0137841243516,
+          "calibration": 79.97314932457473,
+          "combined": 81.78307849537347
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 66.28740243671913,
+          "current": 60.9527068731475,
+          "calibration": 65.44678466479265,
+          "combined": 65.44678466479265
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 83.07728715169351,
+          "current": 83.07728715169351,
+          "calibration": 80.0674140585584,
+          "combined": 81.88833231212183
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 56.84866507879598,
+          "current": 56.84866507879598,
+          "calibration": 58.26577486403606,
+          "combined": 60.45766202665328
+        }
+      ]
+    },
+    {
+      "id": "halo",
+      "name": "Relationship impressions overwhelm skill ratings",
+      "note": "This deliberately tests the feared collapse toward average. Reviewer calibration cannot recover information absent from the answers.",
+      "mae": {
+        "plain": 15.30735527365755,
+        "current": 17.395851739421836,
+        "calibration": 16.342947149417576,
+        "combined": 20.91584510463945
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 9.221629257659833,
+        "current": 12.14483555888243,
+        "calibration": 12.061991913285343,
+        "combined": 16.975107851872092
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 0,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 58.486128117094374,
+          "current": 58.486128117094374,
+          "calibration": 60.018182206478855,
+          "combined": 52.980921144107185
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 57.61996023490076,
+          "current": 65.45768382009321,
+          "calibration": 59.15989930522757,
+          "combined": 66.1597914555
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 57.372943143773256,
+          "current": 56.58246980183067,
+          "calibration": 59.04353304127156,
+          "combined": 58.284039008638175
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 58.89272388518291,
+          "current": 68.9587893552789,
+          "calibration": 60.42951091244939,
+          "combined": 69.68754117851377
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 61.454160136942015,
+          "current": 56.24365429904743,
+          "calibration": 63.00860907401533,
+          "combined": 58.20569667927488
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 23.245647856302508,
+          "current": 20.621409874069318,
+          "calibration": 22.338268503925878,
+          "combined": 11.13674842319004
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 49.23057684469035,
+          "current": 42.451317892795885,
+          "calibration": 41.39549671166824,
+          "combined": 28.926200649980792
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 41.51374102622639,
+          "current": 29.803611039473765,
+          "calibration": 34.29126502345736,
+          "combined": 20.231402007889443
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 44.234971294843405,
+          "current": 31.520165344201935,
+          "calibration": 39.018088911861234,
+          "combined": 39.018088911861234
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 46.31566203018094,
+          "current": 45.94469293741014,
+          "calibration": 40.61201522299892,
+          "combined": 40.61201522299892
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 55.66088584288601,
+          "current": 53.95278202186695,
+          "calibration": 57.91569370886499,
+          "combined": 56.294453281595636
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 41.795737286702284,
+          "current": 28.65445479454648,
+          "calibration": 43.93986738716064,
+          "combined": 31.239118110199904
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 66.17031290579689,
+          "current": 66.17031290579689,
+          "calibration": 68.18518196472681,
+          "combined": 68.18518196472681
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 65.51492773931263,
+          "current": 70.53505103710876,
+          "calibration": 67.58673213770486,
+          "combined": 72.21206850744979
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 57.33258744144415,
+          "current": 52.03527174302511,
+          "calibration": 59.22806972619055,
+          "combined": 54.12252901083421
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 42.8505656255095,
+          "current": 42.8505656255095,
+          "calibration": 35.66377211148697,
+          "combined": 27.132579729945338
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 38.479664516043066,
+          "current": 31.46804677162257,
+          "calibration": 32.33760087688433,
+          "combined": 20.637633691349688
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 31.63654440357897,
+          "current": 22.091632638137504,
+          "calibration": 28.533486126681318,
+          "combined": 15.554119877028455
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 32.86119750213396,
+          "current": 28.982588513603545,
+          "calibration": 28.187253409812374,
+          "combined": 17.688895335895804
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 51.611182935187514,
+          "current": 43.659915887654876,
+          "calibration": 43.61012068209644,
+          "combined": 31.044624509940434
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 50.47242399492562,
+          "current": 47.258935669791036,
+          "calibration": 51.62932833463311,
+          "combined": 48.410647274325655
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 64.52945310092505,
+          "current": 64.52945310092505,
+          "calibration": 65.76367367580738,
+          "combined": 65.76367367580738
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 51.74183723663407,
+          "current": 46.56001644984955,
+          "calibration": 52.95375974485032,
+          "combined": 47.88523492605298
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 59.666159017059975,
+          "current": 59.666159017059975,
+          "calibration": 60.793424749664794,
+          "combined": 60.793424749664794
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 49.203186350112624,
+          "current": 51.92806601153439,
+          "calibration": 50.55068707856931,
+          "combined": 53.31036645268369
+        }
+      ]
+    },
+    {
+      "id": "improvement",
+      "name": "Real technical improvement",
+      "note": "Alice improves from 2.1 to 4.3 stars during the last four weeks.",
+      "mae": {
+        "plain": 5.040387782022114,
+        "current": 5.96654493139432,
+        "calibration": 3.9516870806729636,
+        "combined": 4.049774790326877
+      },
+      "spread": {
+        "truth": 16.124128424074662,
+        "plain": 16.044212480863997,
+        "current": 16.783543890088303,
+        "calibration": 15.178980072993147,
+        "combined": 15.283603176966736
+      },
+      "movement": {
+        "plain": 19.02850015367075,
+        "current": 16.39535983406326,
+        "calibration": 18.98785708828289,
+        "combined": 17.50648650420438
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 20,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 82.5,
+          "plain": 56.71807404680597,
+          "current": 51.94744843615013,
+          "calibration": 51.56113918695225,
+          "combined": 51.56113918695225
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 71.79316085179572,
+          "current": 71.79316085179572,
+          "calibration": 66.54879499567173,
+          "combined": 66.54879499567173
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 75.26484434432572,
+          "current": 75.26484434432572,
+          "calibration": 71.09510750358189,
+          "combined": 71.09510750358189
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 62.46475736824482,
+          "current": 63.009688255409756,
+          "calibration": 57.377585907643216,
+          "combined": 57.377585907643216
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 87.2031912691374,
+          "current": 88.36966958283494,
+          "calibration": 82.19352970664127,
+          "combined": 82.19352970664127
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 16.88438997608864,
+          "current": 16.88438997608864,
+          "calibration": 20.097326993495805,
+          "combined": 20.097326993495805
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 75.99852557294557,
+          "current": 75.99852557294557,
+          "calibration": 79.27842501546678,
+          "combined": 79.27842501546678
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 56.17301966249346,
+          "current": 53.31472719227741,
+          "calibration": 59.49267235048035,
+          "combined": 59.49267235048035
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 41.305019192740936,
+          "current": 43.8389757903876,
+          "calibration": 44.13605808407287,
+          "combined": 44.13605808407287
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 64.64615062218166,
+          "current": 67.73375383612617,
+          "calibration": 67.89432994651486,
+          "combined": 67.89432994651486
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 71.29560284948866,
+          "current": 71.29560284948866,
+          "calibration": 66.9911724527617,
+          "combined": 66.9911724527617
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 35.83681462423935,
+          "current": 41.93233640318918,
+          "calibration": 31.451097883533773,
+          "combined": 31.451097883533773
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 90.88885034890384,
+          "current": 91.86083589778482,
+          "calibration": 86.65758237152372,
+          "combined": 86.65758237152372
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 85.77149035739835,
+          "current": 89.89312103798551,
+          "calibration": 81.63191319900949,
+          "combined": 81.63191319900949
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 75.10273792570246,
+          "current": 75.10273792570246,
+          "calibration": 69.83617355756746,
+          "combined": 69.83617355756746
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 70.69320710335299,
+          "current": 70.69320710335299,
+          "calibration": 74.19502792065019,
+          "combined": 74.19502792065019
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 65.32952308431261,
+          "current": 66.84107576103358,
+          "calibration": 68.19160601280878,
+          "combined": 68.19160601280878
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 27.218498264291412,
+          "current": 27.218498264291412,
+          "calibration": 30.134629751128305,
+          "combined": 30.134629751128305
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 34.566790958395025,
+          "current": 31.491429166384822,
+          "calibration": 37.38022705278756,
+          "combined": 37.38022705278756
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 79.80001994168195,
+          "current": 79.80001994168195,
+          "calibration": 82.55248937996733,
+          "combined": 82.55248937996733
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 44.74832086912509,
+          "current": 49.28603141555041,
+          "calibration": 44.73714904651958,
+          "combined": 44.73714904651958
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 84.77521326837014,
+          "current": 84.77521326837014,
+          "calibration": 84.7669613014371,
+          "combined": 84.7669613014371
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 66.28740243671913,
+          "current": 69.64553662459961,
+          "calibration": 66.27665772425199,
+          "combined": 66.27665772425199
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 82.36072748821428,
+          "current": 82.36072748821428,
+          "calibration": 82.35019337653348,
+          "combined": 82.35019337653348
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 56.99091666303423,
+          "current": 54.76271388484024,
+          "calibration": 56.97998239765708,
+          "combined": 56.97998239765708
+        }
+      ]
+    },
+    {
+      "id": "deterioration",
+      "name": "Real technical deterioration",
+      "note": "Alice deteriorates from 4.3 to 2.1 stars during the last four weeks.",
+      "mae": {
+        "plain": 5.426647778882052,
+        "current": 6.576287138308153,
+        "calibration": 3.913887985123561,
+        "combined": 4.1553742638339966
+      },
+      "spread": {
+        "truth": 15.898169522409693,
+        "plain": 16.251843990223673,
+        "current": 17.13899678557886,
+        "calibration": 15.250799470583278,
+        "combined": 15.466921486793265
+      },
+      "movement": {
+        "plain": -20.43942148508313,
+        "current": -15.346774964105558,
+        "calibration": -20.40642618873767,
+        "combined": -15.223191946858174
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 20,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 64.6389002176959,
+          "current": 77.46057505886395,
+          "calibration": 59.48196535784221,
+          "combined": 59.48196535784221
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 71.79316085179572,
+          "current": 71.79316085179572,
+          "calibration": 66.54879499567173,
+          "combined": 66.54879499567173
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 75.26484434432572,
+          "current": 75.26484434432572,
+          "calibration": 71.09510750358189,
+          "combined": 71.09510750358189
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 62.46475736824482,
+          "current": 63.009688255409756,
+          "calibration": 57.377585907643216,
+          "combined": 57.377585907643216
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 87.2031912691374,
+          "current": 88.36966958283494,
+          "calibration": 82.19352970664127,
+          "combined": 82.19352970664127
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 16.88438997608864,
+          "current": 16.88438997608864,
+          "calibration": 20.183203271654705,
+          "combined": 20.183203271654705
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 75.99852557294557,
+          "current": 75.99852557294557,
+          "calibration": 79.35997067108096,
+          "combined": 79.35997067108096
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 56.17301966249346,
+          "current": 53.31472719227741,
+          "calibration": 59.571647067232306,
+          "combined": 59.571647067232306
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 41.305019192740936,
+          "current": 43.8389757903876,
+          "calibration": 44.246632640881764,
+          "combined": 44.246632640881764
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 64.64615062218166,
+          "current": 67.73375383612617,
+          "calibration": 67.97792701915454,
+          "combined": 67.97792701915454
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 71.29560284948866,
+          "current": 71.29560284948866,
+          "calibration": 66.97246511917608,
+          "combined": 66.97246511917608
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 35.83681462423935,
+          "current": 41.93233640318918,
+          "calibration": 31.432037274226953,
+          "combined": 31.432037274226953
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 90.88885034890384,
+          "current": 91.86083589778482,
+          "calibration": 86.63919300655611,
+          "combined": 86.63919300655611
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 85.77149035739835,
+          "current": 89.89312103798551,
+          "calibration": 81.61392232828608,
+          "combined": 81.61392232828608
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 75.10273792570246,
+          "current": 75.10273792570246,
+          "calibration": 69.8132847273613,
+          "combined": 69.8132847273613
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 70.69320710335299,
+          "current": 70.69320710335299,
+          "calibration": 74.17213909044406,
+          "combined": 74.17213909044406
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 65.32952308431261,
+          "current": 66.84107576103358,
+          "calibration": 68.17289867922315,
+          "combined": 68.17289867922315
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 27.218498264291412,
+          "current": 27.218498264291412,
+          "calibration": 30.115569141821474,
+          "combined": 30.115569141821474
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 34.566790958395025,
+          "current": 31.491429166384822,
+          "calibration": 37.361837687819985,
+          "combined": 37.361837687819985
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 79.80001994168195,
+          "current": 79.80001994168195,
+          "calibration": 82.5344985092439,
+          "combined": 82.5344985092439
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 44.74832086912509,
+          "current": 49.28603141555041,
+          "calibration": 44.78943844111667,
+          "combined": 44.78943844111667
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 84.77521326837014,
+          "current": 84.77521326837014,
+          "calibration": 84.80558439548372,
+          "combined": 84.80558439548372
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 66.28740243671913,
+          "current": 69.64553662459961,
+          "calibration": 66.32694804212275,
+          "combined": 66.32694804212275
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 82.36072748821428,
+          "current": 82.36072748821428,
+          "calibration": 82.39949798347703,
+          "combined": 82.39949798347703
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 56.99091666303423,
+          "current": 54.76271388484024,
+          "calibration": 57.03115991247486,
+          "combined": 57.03115991247486
+        }
+      ]
+    },
+    {
+      "id": "outliers",
+      "name": "Occasional extreme answers",
+      "note": "Two percent of skill answers are independently replaced by 1 or 5 stars.",
+      "mae": {
+        "plain": 2.911259641401094,
+        "current": 2.6939179614652526,
+        "calibration": 2.960911750123152,
+        "combined": 2.7414227988335824
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 16.066332325107208,
+        "current": 16.33081022202814,
+        "calibration": 16.01042474846936,
+        "combined": 16.26442046100914
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 7,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 77.77783222077252,
+          "current": 77.77783222077252,
+          "calibration": 78.07099565480348,
+          "combined": 78.07099565480348
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 58.63666078272273,
+          "current": 57.634173913276776,
+          "calibration": 59.03053933951647,
+          "combined": 58.03759855819622
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 71.56225259635498,
+          "current": 71.56225259635498,
+          "calibration": 71.8644618180754,
+          "combined": 71.8644618180754
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 47.13214662068375,
+          "current": 47.13214662068375,
+          "calibration": 47.53218637227923,
+          "combined": 47.53218637227923
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 83.08123728585413,
+          "current": 84.36360850320071,
+          "calibration": 83.32585483730116,
+          "combined": 84.61200176282786
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 25.95693153142341,
+          "current": 25.95693153142341,
+          "calibration": 26.738284967577307,
+          "combined": 26.738284967577307
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 84.477157921005,
+          "current": 84.477157921005,
+          "calibration": 84.43558506280453,
+          "combined": 84.43558506280453
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 69.8973037426955,
+          "current": 69.8973037426955,
+          "calibration": 70.57383648840852,
+          "combined": 70.57383648840852
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 45.1695514772067,
+          "current": 45.1695514772067,
+          "calibration": 45.94951138776522,
+          "combined": 45.94951138776522
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 69.64284212056496,
+          "current": 69.64284212056496,
+          "calibration": 70.13022539635003,
+          "combined": 70.13022539635003
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 58.83420077726645,
+          "current": 58.83420077726645,
+          "calibration": 59.2770344891288,
+          "combined": 59.2770344891288
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 28.70769728720711,
+          "current": 28.70769728720711,
+          "calibration": 29.441721383561493,
+          "combined": 29.441721383561493
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 76.12559137579366,
+          "current": 81.47652288189278,
+          "calibration": 76.23158131742768,
+          "combined": 81.47227415271176
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 72.92535653737448,
+          "current": 72.92535653737448,
+          "calibration": 73.17945249887995,
+          "combined": 73.17945249887995
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 70.42549362737877,
+          "current": 70.42549362737877,
+          "calibration": 70.2993858632318,
+          "combined": 70.2993858632318
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 63.69961755541009,
+          "current": 69.37018646491909,
+          "calibration": 63.1771904411754,
+          "combined": 68.80125265150544
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 69.05209007833261,
+          "current": 70.18147312184121,
+          "calibration": 68.540949057915,
+          "combined": 69.66197212273728
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 38.84734302991324,
+          "current": 37.503877004030784,
+          "calibration": 38.24044224298051,
+          "combined": 36.88364318091085
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 32.362012257317275,
+          "current": 32.362012257317275,
+          "calibration": 31.850792169009356,
+          "combined": 31.850792169009356
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 75.3434413505841,
+          "current": 75.3434413505841,
+          "calibration": 74.6232526342168,
+          "combined": 74.6232526342168
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 43.86313002224384,
+          "current": 43.86313002224384,
+          "calibration": 44.52450863986327,
+          "combined": 44.52450863986327
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 85.08913816218171,
+          "current": 85.08913816218171,
+          "calibration": 84.91064263098147,
+          "combined": 84.91064263098147
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 73.56556526349355,
+          "current": 73.56556526349355,
+          "calibration": 73.7966877503863,
+          "combined": 73.7966877503863
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 83.64592074734676,
+          "current": 83.64592074734676,
+          "calibration": 83.36718296402015,
+          "combined": 83.36718296402015
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 60.762220525792884,
+          "current": 58.00416417938708,
+          "calibration": 61.400678790425836,
+          "combined": 58.762255178533465
+        }
+      ]
+    },
+    {
+      "id": "common",
+      "name": "Everyone uses a harsher scale",
+      "note": "A shared −0.8-star bias has no external anchor; relative calibration cannot identify it.",
+      "mae": {
+        "plain": 19.89366604726829,
+        "current": 19.886407997622605,
+        "calibration": 19.83869899527929,
+        "combined": 19.83104112060006
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 16.016877033045052,
+        "current": 16.036443833897167,
+        "calibration": 15.952643244231847,
+        "combined": 15.973101906017098
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 500,
+      "calibratedBetterSeeds": 12,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 58.486128117094374,
+          "current": 58.486128117094374,
+          "calibration": 58.74115715176351,
+          "combined": 58.74115715176351
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 41.96366936086119,
+          "current": 41.96366936086119,
+          "calibration": 42.21492087584878,
+          "combined": 42.21492087584878
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": 54.694057349048464,
+          "current": 54.694057349048464,
+          "calibration": 54.99173899098334,
+          "combined": 54.99173899098334
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 36.424221323970244,
+          "current": 36.424221323970244,
+          "calibration": 36.682264536962506,
+          "combined": 36.682264536962506
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 61.454160136941994,
+          "current": 61.454160136941994,
+          "calibration": 61.715552221365435,
+          "combined": 61.715552221365435
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 2.7765860204503334,
+          "current": 2.7765860204503334,
+          "calibration": 2.788929656243372,
+          "combined": 2.788929656243372
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 61.71441099651269,
+          "current": 61.71441099651269,
+          "calibration": 61.25602777947565,
+          "combined": 61.25602777947565
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 45.4520775792598,
+          "current": 45.4520775792598,
+          "calibration": 44.994479206331995,
+          "combined": 44.994479206331995
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 30.583095505356006,
+          "current": 30.583095505356006,
+          "calibration": 30.115850482060235,
+          "combined": 30.115850482060235
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 50.94194904974133,
+          "current": 50.94194904974133,
+          "calibration": 50.48293958577494,
+          "combined": 50.48293958577494
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 47.559311262124204,
+          "current": 47.559311262124204,
+          "calibration": 47.79066339543155,
+          "combined": 47.79066339543155
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 9.871001179437878,
+          "current": 9.871001179437878,
+          "calibration": 10.814165175267181,
+          "combined": 10.814165175267181
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": 69.94161676855553,
+          "current": 69.94161676855553,
+          "calibration": 70.11298630752336,
+          "combined": 70.11298630752336
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 64.26285827819768,
+          "current": 64.26285827819768,
+          "calibration": 64.5188550276569,
+          "combined": 64.5188550276569
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 52.66711446892263,
+          "current": 52.66711446892263,
+          "calibration": 52.7546330770224,
+          "combined": 52.7546330770224
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": 56.2664919281304,
+          "current": 56.2664919281304,
+          "calibration": 56.640525075960156,
+          "combined": 56.640525075960156
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 45.483567776078985,
+          "current": 45.483567776078985,
+          "calibration": 45.88024075178643,
+          "combined": 45.88024075178643
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 10.589535909997421,
+          "current": 10.589535909997421,
+          "calibration": 11.590842120719536,
+          "combined": 11.590842120719536
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 18.82940007623155,
+          "current": 18.82940007623155,
+          "calibration": 19.396369631424616,
+          "combined": 19.396369631424616
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 63.153425485870684,
+          "current": 63.153425485870684,
+          "calibration": 63.553977598010256,
+          "combined": 63.553977598010256
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": 26.261178329920266,
+          "current": 26.261178329920266,
+          "calibration": 25.81483586853839,
+          "combined": 25.81483586853839
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 64.52945310092505,
+          "current": 64.52945310092505,
+          "calibration": 64.01512205973582,
+          "combined": 64.01512205973582
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 48.34870522991531,
+          "current": 48.34870522991531,
+          "calibration": 47.7966835519403,
+          "combined": 47.7966835519403
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 59.21475471529845,
+          "current": 59.21475471529845,
+          "calibration": 58.6659173486123,
+          "combined": 58.6659173486123
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 42.03911478435807,
+          "current": 42.03911478435807,
+          "calibration": 41.4842270417227,
+          "combined": 41.4842270417227
+        }
+      ]
+    },
+    {
+      "id": "sparse",
+      "name": "Sparse and overlapping evidence",
+      "note": "Only three weeks of answers; half of the skill answers are unobserved.",
+      "mae": {
+        "plain": 7.899564428230225,
+        "current": 7.899564428230225,
+        "calibration": 7.899564428230225,
+        "combined": 7.899564428230225
+      },
+      "spread": {
+        "truth": 16.007650733840627,
+        "plain": 16.691375346879248,
+        "current": 16.691375346879248,
+        "calibration": 16.691375346879248,
+        "combined": 16.691375346879248
+      },
+      "movement": {
+        "plain": null,
+        "current": null,
+        "calibration": null,
+        "combined": null
+      },
+      "seeds": 20,
+      "cellsScored": 444,
+      "calibratedBetterSeeds": 0,
+      "example": [
+        {
+          "employee": "Alice",
+          "skill": "Technical Problem Solving",
+          "truth": 80,
+          "plain": 50,
+          "current": 50,
+          "calibration": 50,
+          "combined": 50
+        },
+        {
+          "employee": "Alice",
+          "skill": "Communication",
+          "truth": 62.5,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Alice",
+          "skill": "Teamwork",
+          "truth": 75,
+          "plain": null,
+          "current": null,
+          "calibration": null,
+          "combined": null
+        },
+        {
+          "employee": "Alice",
+          "skill": "Leadership",
+          "truth": 52.5,
+          "plain": 50,
+          "current": 50,
+          "calibration": 50,
+          "combined": 50
+        },
+        {
+          "employee": "Alice",
+          "skill": "Reliability",
+          "truth": 82.5,
+          "plain": 100,
+          "current": 100,
+          "calibration": 100,
+          "combined": 100
+        },
+        {
+          "employee": "Bob",
+          "skill": "Technical Problem Solving",
+          "truth": 27.500000000000004,
+          "plain": 25,
+          "current": 25,
+          "calibration": 25,
+          "combined": 25
+        },
+        {
+          "employee": "Bob",
+          "skill": "Communication",
+          "truth": 80,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Bob",
+          "skill": "Teamwork",
+          "truth": 65,
+          "plain": 50.000000000000014,
+          "current": 50.000000000000014,
+          "calibration": 50.000000000000014,
+          "combined": 50.000000000000014
+        },
+        {
+          "employee": "Bob",
+          "skill": "Leadership",
+          "truth": 44.99999999999999,
+          "plain": 50,
+          "current": 50,
+          "calibration": 50,
+          "combined": 50
+        },
+        {
+          "employee": "Bob",
+          "skill": "Reliability",
+          "truth": 70,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Carla",
+          "skill": "Technical Problem Solving",
+          "truth": 62.5,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Carla",
+          "skill": "Communication",
+          "truth": 35,
+          "plain": 25,
+          "current": 25,
+          "calibration": 25,
+          "combined": 25
+        },
+        {
+          "employee": "Carla",
+          "skill": "Teamwork",
+          "truth": 85.00000000000001,
+          "plain": null,
+          "current": null,
+          "calibration": null,
+          "combined": null
+        },
+        {
+          "employee": "Carla",
+          "skill": "Leadership",
+          "truth": 77.49999999999999,
+          "plain": 82.10259133541626,
+          "current": 82.10259133541626,
+          "calibration": 82.10259133541626,
+          "combined": 82.10259133541626
+        },
+        {
+          "employee": "Carla",
+          "skill": "Reliability",
+          "truth": 67.5,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Dan",
+          "skill": "Technical Problem Solving",
+          "truth": 75,
+          "plain": null,
+          "current": null,
+          "calibration": null,
+          "combined": null
+        },
+        {
+          "employee": "Dan",
+          "skill": "Communication",
+          "truth": 67.5,
+          "plain": 66.01300487449384,
+          "current": 66.01300487449384,
+          "calibration": 66.01300487449384,
+          "combined": 66.01300487449384
+        },
+        {
+          "employee": "Dan",
+          "skill": "Teamwork",
+          "truth": 32.49999999999999,
+          "plain": 25,
+          "current": 25,
+          "calibration": 25,
+          "combined": 25
+        },
+        {
+          "employee": "Dan",
+          "skill": "Leadership",
+          "truth": 37.5,
+          "plain": 36.77877362750185,
+          "current": 36.77877362750185,
+          "calibration": 36.77877362750185,
+          "combined": 36.77877362750185
+        },
+        {
+          "employee": "Dan",
+          "skill": "Reliability",
+          "truth": 77.49999999999999,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Elias",
+          "skill": "Technical Problem Solving",
+          "truth": 44.99999999999999,
+          "plain": null,
+          "current": null,
+          "calibration": null,
+          "combined": null
+        },
+        {
+          "employee": "Elias",
+          "skill": "Communication",
+          "truth": 82.5,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Elias",
+          "skill": "Teamwork",
+          "truth": 70,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Elias",
+          "skill": "Leadership",
+          "truth": 80,
+          "plain": 75,
+          "current": 75,
+          "calibration": 75,
+          "combined": 75
+        },
+        {
+          "employee": "Elias",
+          "skill": "Reliability",
+          "truth": 57.49999999999999,
+          "plain": 50,
+          "current": 50,
+          "calibration": 50,
+          "combined": 50
+        }
+      ]
+    }
+  ]
+}
