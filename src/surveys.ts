@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { randomInt } from 'node:crypto';
+import { InsightService } from './insights.js';
 import { Database } from './database.js';
 import { WorkspaceService } from './workspace.js';
 import { Clock } from './clock.js';
@@ -34,7 +35,7 @@ function shuffled<T>(items: T[]): T[] {
 
 @Injectable()
 export class SurveyService {
-  constructor(private readonly db: Database, private readonly workspace: WorkspaceService, private readonly clock: Clock) {}
+  constructor(private readonly db: Database, private readonly workspace: WorkspaceService, private readonly clock: Clock, private readonly insights: InsightService) {}
 
   // Serialize generation per company. Queries remain tenant-scoped inside the lock.
   private async lock(tx: Tx, orgId: string) {
@@ -407,7 +408,8 @@ export class SurveyService {
       await tx.answer.createMany({data: answers.map(answer => ({orgId, surveyId: a.surveyId, assignmentId, questionVersionId: answer.questionVersionId, rating: answer.rating}))});
       await tx.assignment.update({where: {id: assignmentId}, data: {submittedAt: now, status: 'COMPLETED', closedAt: now}});
       await this.recordCredit(tx, a, 'COMPLETED');
+      await this.insights.refresh(tx, orgId, [a.subject.membershipId], [[a.respondent.membershipId, a.subject.membershipId]], now);
       return {ok: true, submittedAt: now, participationPercentage: 100};
-    });
+    }, {timeout: 30000, maxWait: 10000});
   }
 }

@@ -1,6 +1,6 @@
 # Survey and feedback API
 
-This slice collects evidence. It records normalized participation credit but does not calculate chemistry/skill scores, convert credit to company points or send notifications. An opt-in automatic scheduler runs with the API. Frontend design and behaviour will be developed with the product owner later.
+This slice collects evidence. It records normalized participation credit. Completed surveys now also save recalculated [skill and relationship summaries](insights.md); conversion to company reward points and notifications remain unimplemented. An opt-in automatic scheduler runs with the API. Frontend design and behaviour will be developed with the product owner later.
 
 All routes require the existing bearer session and are prefixed with `/organizations/:orgId`. Company and assignment ownership are checked server-side.
 

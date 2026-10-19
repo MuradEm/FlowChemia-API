@@ -68,7 +68,7 @@ Login and invitation acceptance have a bounded process-local limit of 10 attempt
 
 Verified: dependency installation from the lockfile, schema validation, migration deployment, client generation and the TypeScript build. All six database integration tests, two upgrade-preservation tests, two password/token tests, five calendar tests, and fifty-three HTTP integration scenarios pass (the HTTP runner reports fifty-nine tests including six parents). Startup is validated with a database-backed health request. No runtime network blocker remains.
 
-The survey, skill-definition and feedback-submission endpoints are documented in [survey API](surveys.md). No chemistry or skill-score endpoints exist in this slice. The personal relationship restriction remains a requirement for the analytics slice; no raw scores or feedback are returned here.
+The survey, skill-definition and feedback-submission endpoints are documented in [survey API](surveys.md). The [team insights endpoint](insights.md) supplies role-filtered qualitative skill and relationship summaries. Numerical scores and raw feedback are never returned; personal relationship restrictions are enforced by the API.
 
 Assignment skip/replacement actions and private normalized credit history are documented in the [participation API](participation.md). Actual company point amounts are not fixed by this implementation.
 

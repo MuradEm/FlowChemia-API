@@ -15,7 +15,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node --env-file=.env dist/src/main.js",
     "dev": "npm run build && npm start",
-    "test:api": "npm run build && node --env-file=.env --test tests/api.test.mjs tests/surveys.test.mjs tests/participation.test.mjs tests/reports.test.mjs tests/scheduler.test.mjs tests/questions.test.mjs tests/adaptive-surveys.test.mjs tests/question-selection.test.mjs",
+    "test:api": "npm run build && node --env-file=.env --test tests/api.test.mjs tests/surveys.test.mjs tests/participation.test.mjs tests/reports.test.mjs tests/scheduler.test.mjs tests/questions.test.mjs tests/adaptive-surveys.test.mjs tests/question-selection.test.mjs tests/insights.test.mjs tests/insight-model.test.mjs",
     "bootstrap": "node --env-file=.env dist/scripts/bootstrap.js",
     "test:auth": "node --test tests/password.test.mjs tests/bootstrap-input.test.mjs",
     "test:bootstrap": "npm run build && node --env-file=.env --test tests/bootstrap.test.mjs",

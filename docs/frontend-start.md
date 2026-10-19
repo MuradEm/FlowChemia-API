@@ -34,7 +34,7 @@ Login and real-mode requests use the API's bearer sessions through Vite's
 development proxy. Session and company data remain in memory. The original
 demo is available explicitly from login and stays separate from real data.
 See [local setup](local-frontend.md) and the frontend README for startup and
-failure behavior. Administrative company/team/question screens remain future work.
+failure behavior. Company setup, survey scheduling and HR standard-library approval are available in the frontend.
 
 Respect the existing product rules: no written responses, no forced two-minute
 timer, and replacement does not immediately earn participation credit. The
@@ -42,8 +42,9 @@ frontend obtains exact question IDs and wording from assignment detail; it must
 not recreate question selection in the browser or interpret missing answers as
 neutral ratings.
 
-Subsequent slices can cover team management, scheduling/question approval and
-employee/chemistry cards. Production skill/chemistry analytics endpoints remain
-unimplemented. Any card prototype must identify sample data clearly and preserve
-the intended visual summaries, limited-evidence states and role-specific access.
-The browser must not receive unauthorized data merely to hide it visually.
+Employee cards and team overview now use the [insights API](insights.md).
+The overview has no lines; selecting an employee requests only their connections.
+The backend stores numerical summaries and returns only authorized qualitative
+indicators. Owner administration does not imply insight access, and personal
+relationship restrictions are enforced before serialization. Missing/early
+feedback is neutral; real data never falls back to invented examples.

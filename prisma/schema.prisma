@@ -297,6 +297,7 @@ model Answer {
 }
 
 model PairInsight {
+  details Json?
   id                 String       @id @default(uuid()) @db.Uuid
   orgId              String       @db.Uuid
   firstMembershipId  String       @db.Uuid
@@ -317,6 +318,7 @@ model PairInsight {
 }
 
 model SkillInsight {
+  details Json?
   id               String       @id @default(uuid()) @db.Uuid
   orgId            String       @db.Uuid
   membershipId     String       @db.Uuid

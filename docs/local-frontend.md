@@ -104,3 +104,22 @@ demo progress, never real account data, feedback answers or bearer tokens.
 The backend is required for real login, but **Explore the demo** works without
 it and never submits feedback. Real mode never substitutes sample data when
 the API is unavailable. Production deployment/API routing is not configured.
+
+## Update for employee cards and team insights
+
+Stop the backend, preserve `.env` and the database volume, then run in the API checkout:
+
+```powershell
+git pull origin main
+npm.cmd ci
+npm.cmd run db:migrate
+npm.cmd run db:generate
+npm.cmd run build
+npm.cmd start
+```
+
+In the frontend checkout, pull main and restart `npm.cmd run dev`. Open **My teams**.
+HR sees team insights; owners without an explicit manager/leader role see rosters
+only. Employees see their own skills and own reported experiences. Existing
+feedback is backfilled when a missing summary is first requested. New completions
+save recalculated summaries automatically. See [insight rules](insights.md).

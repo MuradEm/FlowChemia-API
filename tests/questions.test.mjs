@@ -184,7 +184,7 @@ test('standard library, HR approval, and unobserved answers', async t => {
       }
       await request('PATCH', `${root}/feedback-policy`, owner, {questionVersionIds: [...standardSkills.slice(0,3), enjoyment[0].id, effectiveness.id]});
     });
-    await t.test('chemistry responses retain both perspectives and dimensions without inventing combined scores', async () => {
+    await t.test('chemistry responses retain both perspectives and derive combined reported effectiveness', async () => {
       const questions = await request('GET', `${root}/questions`, hr.token);
       const enjoyment = questions.find(q => q.dimension === 'CHEMISTRY_ENJOYMENT' && q.standardTemplateKey);
       const effectiveness = questions.find(q => q.dimension === 'CHEMISTRY_EFFECTIVENESS' && q.standardTemplateKey);
@@ -204,8 +204,11 @@ test('standard library, HR approval, and unobserved answers', async t => {
         assert.deepEqual(saved.map(a => a.rating), ratings.slice(3));
         assert.ok(!(await request('GET', `${root}/assignments/${assignment.id}`, respondent.token)).answers);
       }
-      assert.equal((await db.query('SELECT count(*)::int n FROM "PairInsight" WHERE "orgId"=$1',[org.id])).rows[0].n, 0);
-      assert.equal((await db.query('SELECT count(*)::int n FROM "SkillInsight" WHERE "orgId"=$1',[org.id])).rows[0].n, 0);
+      const summaries=(await db.query('SELECT * FROM "PairInsight" WHERE "orgId"=$1 AND "modelVersion"=$2',[org.id,'baseline-70-v1'])).rows;
+      const pair=summaries.find(p=>[p.firstMembershipId,p.secondMembershipId].includes(leader.id)&&[p.firstMembershipId,p.secondMembershipId].includes(employee.id));
+      assert.ok(pair);assert.equal(pair.combinedScore,(pair.firstToSecondScore+pair.secondToFirstScore)/2);
+      assert.notEqual(pair.details.firstEnjoyment.score,pair.details.secondEnjoyment.score);
+      assert.ok((await db.query('SELECT count(*)::int n FROM "SkillInsight" WHERE "orgId"=$1',[org.id])).rows[0].n>0);
     });
     await t.test('five rating questions also support four skills and one chemistry dimension without written answers', async () => {
       const ids=[...standardSkills.slice(0,4),standardChemistry[0]];

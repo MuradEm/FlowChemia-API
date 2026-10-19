@@ -1,7 +1,8 @@
 # Current scoring decision
 
 Accepted after the completed 30-survey fresh-team experiment. This is the
-current product direction; production scoring is not implemented yet.
+current product direction, now implemented as `baseline-70-v1` for employee
+cards. See [insights](insights.md) for storage, interpretation and permissions.
 
 - Map stars to points: 1 = 30, 2 = 50, 3 = 65, 4 = 80, 5 = 100.
 - Start each employee skill and each directional enjoyment/effectiveness

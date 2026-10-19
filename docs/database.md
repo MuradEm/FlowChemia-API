@@ -29,11 +29,11 @@ The first question type is a 1–5 rating, with nullable ratings explicitly repr
 
 Submitted answers and assignments are protected against edits; incomplete submissions are rejected. A question's wording cannot change after it is assigned to a survey. Survey composition, skill mappings and context are now frozen by database triggers after issuance. The survey API enforces open periods, scoped assignment ownership, eligibility and complete atomic submission. FeedbackPolicy versions preserve current and pending calendar settings and explicit automation opt-in. SurveyGeneration records one durable receipt per company/cycle so retries do not duplicate requests or top up blocked batches. Periodic deadlines are null; old deadlines are archived in legacyClosesAt.
 
-SkillInsight belongs to an employee membership, independent of teams. PairInsight belongs to two employee memberships in canonical UUID order, independent of teams, and retains combined and directional values. It stores model version, evidence count, confidence and computation time. No chemistry algorithm or evaluator weights are implemented. Missing scores are null; zero confidence represents insufficient evidence. The numerical test values are synthetic fixtures, not a proposed scoring formula.
+SkillInsight belongs to an employee membership, independent of teams. PairInsight belongs to two employee memberships in canonical UUID order, independent of teams, and retains combined and directional values. It stores model version, evidence count, confidence and computation time. The accepted baseline model now populates these summaries on survey completion; [insights](insights.md) describes the calculation and permissions. Summary JSON holds separate enjoyment/effectiveness evidence. Baseline-only values are never exposed as observed feedback; the legacy confidence field remains zero because no confidence model has been calibrated. The numerical test values are synthetic fixtures, not a proposed scoring formula.
 
 Assignment outcomes and linear replacement history preserve the difference between completion, voluntary skip, replacement and insufficient opportunity. ParticipationCredit stores immutable 100%/60% entries, one per original assignment slot; it does not assign a point value.
 
-Raw feedback stays separate from recalculable summaries. Aging, baseline calibration, weighting, confidence thresholds and retention remain open. Never equate a high score with productivity or treat evidence volume as a high score.
+Raw feedback stays separate from recalculable summaries. The initial baseline, mapping and recency model are implemented with documented provisional visual thresholds; validation, calibration and retention remain open. Never equate a high score with productivity or treat evidence volume as a high score.
 
 ## Visibility contract
 
@@ -49,10 +49,10 @@ Ownership, administrative authority and personal participation must not be used 
 
 The browser must receive permitted qualitative indicators, not serialized persistence models. Numerical survey inputs and participation-point amounts are distinct from hidden analytical scores.
 
-Composite foreign keys reject cross-company links and enforce that assignment participants come from the same team as the survey. These integrity checks are **not** read authorization. The company/team API now implements session authentication, tenant-scoped queries and administrative/team role checks. Its build and HTTP tests pass; see api.md. Analytics endpoints and their relationship-level visibility rules have not been implemented. Use fictional data only.
+Composite foreign keys reject cross-company links and enforce that assignment participants come from the same team as the survey. These integrity checks are **not** read authorization. The company/team API now implements session authentication, tenant-scoped queries and administrative/team role checks. Its build and HTTP tests pass; see api.md. The [insights endpoint](insights.md) enforces relationship-level visibility and returns only qualitative projections. Use fictional data only.
 
 ## Deliberately deferred
 
-Hosted identity-provider integration, email delivery/recovery, interaction confirmation beyond self-reporting, company point conversion and the reward store, audit and retention workflows, qualitative thresholds, and chemistry calculations. No five-skill cap or evaluator multiplier has been hard-coded.
+Hosted identity-provider integration, email delivery/recovery, interaction confirmation beyond self-reporting, company point conversion and the reward store, audit and retention workflows, validated confidence/interpretation thresholds and advanced calibration. No five-skill cap or evaluator multiplier has been hard-coded.
 
 The company/team and survey collection workflows are implemented. Next product decisions include participation rewards, interaction confirmation and the chemistry model. Frontend design remains a joint activity with the product owner.

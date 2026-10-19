@@ -153,6 +153,8 @@ test('skip, replacement and normalized participation credit', async t=>{
       const count=await db.query('SELECT count(*)::int n FROM "Answer" a JOIN "Assignment" z ON z.id=a."assignmentId" WHERE z."surveyId"=$1',[milestone.id]);assert.equal(count.rows[0].n,0);
     });
     await t.test('closed deadlines and inactive memberships cannot earn credit or request replacements',async()=>{
+      const beforeInsights=(await db.query('SELECT id,score,details,\"computedAt\" FROM \"SkillInsight\" ORDER BY id')).rows;
+      const beforePairs=(await db.query('SELECT * FROM \"PairInsight\" ORDER BY id')).rows;
       const source=(await db.query('SELECT * FROM "Assignment" WHERE id=$1',[originals[1].id])).rows[0];
       const survey=randomUUID(),assignment=randomUUID();
       await db.query('INSERT INTO "Survey" (id,"orgId","teamId",kind,"opensAt","closesAt") VALUES ($1,$2,$3,\'MILESTONE\',now()-interval \'2 days\',now()-interval \'1 day\')',[survey,organization.id,source.teamId]);
@@ -162,7 +164,8 @@ test('skip, replacement and normalized participation credit', async t=>{
       await db.query('UPDATE "Membership" SET active=false WHERE id=$1',[bob.id]);
       await request('GET',`${root}/participation/my`,bob.token,undefined,404);
       await request('POST',`${root}/assignments/${assignment}/skip`,bob.token,{},404);
-      const counts=await db.query('SELECT (SELECT count(*) FROM "PairInsight")::int pairs,(SELECT count(*) FROM "SkillInsight")::int skills');assert.equal(counts.rows[0].pairs,0);assert.equal(counts.rows[0].skills,0);
+      assert.deepEqual((await db.query('SELECT id,score,details,"computedAt" FROM "SkillInsight" ORDER BY id')).rows,beforeInsights);
+      assert.deepEqual((await db.query('SELECT * FROM "PairInsight" ORDER BY id')).rows,beforePairs);
     });
   } finally {
     if(app)await app.close();if(db)await db.end();process.env.DATABASE_URL=original;

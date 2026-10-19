@@ -6,6 +6,7 @@ import pg from 'pg';
 import {Database} from '../dist/src/database.js';
 import {Clock} from '../dist/src/clock.js';
 import {WorkspaceService} from '../dist/src/workspace.js';
+import {InsightService} from '../dist/src/insights.js';
 import {SurveyService} from '../dist/src/surveys.js';
 import {QuestionService} from '../dist/src/questions.js';
 import {STANDARD_QUESTIONS} from '../dist/src/standard-questions.js';
@@ -70,7 +71,9 @@ test('chemistry and five-question upgrades preserve history, imports and pending
     const policy=(await db.query('SELECT * FROM "FeedbackPolicy" WHERE id=$1',[policyId])).rows[0];
     assert.equal(policy.automaticEnabled,false);assert.equal(policy.automaticStartsAt,null);assert.deepEqual(policy.questionVersionIds,legacyIds);
     assert.deepEqual((await db.query('SELECT "questionVersionIds" FROM "SurveyGeneration" WHERE id=$1',[generationId])).rows[0].questionVersionIds,legacyIds);
-    const surveys=new SurveyService(client,new WorkspaceService(client),new Clock());
+    await db.query(await readFile(new URL('../prisma/migrations/20261020090000_insight_details/migration.sql',import.meta.url),'utf8'));
+    const workspace=new WorkspaceService(client), clock=new Clock();
+    const surveys=new SurveyService(client,workspace,clock,new InsightService(client,workspace,clock));
     assert.equal((await surveys.schedule(userId,orgId)).requiresQuestionSetUpdate,true);
     await assert.rejects(surveys.setSchedule(userId,orgId,{automaticEnabled:true}),e=>e.getStatus?.()===400);
     await assert.rejects(db.query('UPDATE "FeedbackPolicy" SET "automaticEnabled"=true,"automaticStartsAt"=now() WHERE id=$1',[policyId]),e=>e.code==='23514');

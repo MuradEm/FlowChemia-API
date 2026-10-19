@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Module, Catch, HttpException, type ArgumentsHost, type ExceptionFilter } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import express, { type Response } from 'express';
+import { InsightController, InsightService } from './insights.js';
 import { Database } from './database.js';
 import { Clock } from './clock.js';
 import { SurveyScheduler } from './scheduler.js';
@@ -33,7 +34,7 @@ class Errors implements ExceptionFilter {
   }
 }
 
-@Module({controllers:[AuthController,OrganizationController,SurveyController,ReportController],providers:[Database,AuthService,AuthGuard,WorkspaceService,QuestionService,SurveyService,ReportService,Clock,SurveyScheduler]})
+@Module({controllers:[InsightController,AuthController,OrganizationController,SurveyController,ReportController],providers:[InsightService,Database,AuthService,AuthGuard,WorkspaceService,QuestionService,SurveyService,ReportService,Clock,SurveyScheduler]})
 class AppModule {}
 
 export async function createApp(logger: false | undefined = undefined) {

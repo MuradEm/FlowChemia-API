@@ -53,7 +53,7 @@ Migration 6 preserves all pre-existing versions as `APPROVED` with origin `LEGAC
 
 Submit `{"questionVersionId":"<assigned-question-id>","rating":null}` for an unobserved behaviour. Null is explicit and means no rating; omitting the field is invalid. Answer every assigned question once. A completed survey earns 100% participation even if all answers are unobserved. It closes the outstanding slot normally; it does not act as a skipped survey or create a replacement. Stored ratings remain immutable after submission.
 
-Future skill and chemistry calculations must omit null ratings from numeric evidence, counts, and confidence. No score calculation is implemented in this change. SQL `count(rating)` and `avg(rating)` naturally exclude nulls; `count(*)` counts answer records and is not a rated-evidence count.
+Future skill and chemistry calculations must omit null ratings from numeric evidence, counts, and confidence. The [insight model](insights.md) excludes nulls from its calculations and evidence counts. SQL `count(rating)` and `avg(rating)` naturally exclude nulls; `count(*)` counts answer records and is not a rated-evidence count.
 
 ## Verification
 
@@ -76,7 +76,7 @@ New surveys contain exactly five questions. The standard format is three skill q
 
 The three alternatives per dimension are available for company selection. The current scheduler keeps its explicitly configured question IDs; it does not automatically rotate questions or alternate chemistry and skill surveys. The company can change its selection for a following cycle using the existing schedule rules. No live company settings are changed by adding templates.
 
-Enjoyment and effectiveness stay separate from skills and from one another. Alice's report about working with Bob is separate from Bob's report about working with Alice. Positive collaboration reports do not prove delivery results. This change stores categorized evidence, without inventing a combined chemistry score, baseline, decay rule, or frontend interpretation.
+Enjoyment and effectiveness stay separate from skills and from one another. Alice's report about working with Bob is separate from Bob's report about working with Alice. Positive collaboration reports do not prove delivery results. Question collection stores categorized evidence. The subsequent [insight model](insights.md) calculates separate enjoyment/effectiveness directions and combines reported effectiveness only when both directions have observations.
 
 Migration 7 classifies existing questions with explicit skill mappings as `SKILL`; unmapped questions remain `UNSPECIFIED`. It preserves wording, answers, HR decisions and IDs. Existing version-1 standard template keys remain stable. HR importing version 2 into a company that already adopted all 15 skill questions adds only the six chemistry questions, then subsequent imports create nothing. Database triggers freeze question dimensions and prevent linking chemistry questions to skills.
 
