@@ -52,6 +52,13 @@ test('standard library, HR approval, and unobserved answers', async t => {
       assert.ok(library.questions.filter(q => q.dimension.startsWith('CHEMISTRY_')).every(q => q.skillWeights.length === 0 && q.skillName === null));
       assert.ok(library.questions.filter(q => q.dimension === 'SKILL').every(q => q.skillWeights.length === 1 && q.skillWeights[0].weight === 1));
     });
+    await t.test('capabilities match author, reviewer and skill-management permissions', async () => {
+      await request('GET',`${root}/questions/capabilities`,null,undefined,401);
+      assert.deepEqual(await request('GET',`${root}/questions/capabilities`,employee.token),{canPropose:false,canReview:false,canManageSkills:false,canImportStandard:false});
+      assert.deepEqual(await request('GET',`${root}/questions/capabilities`,owner),{canPropose:true,canReview:false,canManageSkills:true,canImportStandard:false});
+      assert.deepEqual(await request('GET',`${root}/questions/capabilities`,hr.token),{canPropose:true,canReview:true,canManageSkills:true,canImportStandard:true});
+      for(const token of [leader.token,manager.token])assert.deepEqual(await request('GET',`${root}/questions/capabilities`,token),{canPropose:true,canReview:false,canManageSkills:false,canImportStandard:false});
+    });
     await t.test('leaders and managers propose drafts; regular employees cannot, and visibility is scoped', async () => {
       await request('POST', `${root}/questions`, employee.token, payload, 403);
       draft = await request('POST', `${root}/questions`, leader.token, payload, 201);
@@ -63,6 +70,7 @@ test('standard library, HR approval, and unobserved answers', async t => {
       await request('POST', `${root}/questions`, leader.token, {...payload, skillWeights: [{skillId: randomUUID(), weight: 1}]}, 400);
       const {organization: other} = await request('POST', '/organizations', owner, {name: 'Other'}, 201);
       await request('GET', `/organizations/${other.id}/questions`, leader.token, undefined, 404);
+      await request('GET', `/organizations/${other.id}/questions/capabilities`, leader.token, undefined, 404);
       await request('POST', `/organizations/${other.id}/questions/${draft.id}/review`, hr.token, {decision: 'APPROVED'}, 404);
     });
     await t.test('unapproved versions cannot enter manual, milestone, or automatic survey configuration', async () => {
@@ -230,9 +238,12 @@ test('standard library, HR approval, and unobserved answers', async t => {
     await t.test('revoked team roles and inactive HR accounts lose question privileges', async () => {
       await request('DELETE', `${root}/teams/${team.id}/access/${leader.id}`, owner);
       await request('POST', `${root}/questions`, leader.token, payload, 403);
+      assert.equal((await request('GET',`${root}/questions/capabilities`,leader.token)).canPropose,false);
       await db.query('UPDATE "Team" SET "endsAt"=now() WHERE id=$1', [team.id]);
       await request('POST', `${root}/questions`, manager.token, payload, 403);
+      assert.equal((await request('GET',`${root}/questions/capabilities`,manager.token)).canPropose,false);
       await db.query('UPDATE "Membership" SET active=false WHERE id=$1', [hr.id]);
+      await request('GET',`${root}/questions/capabilities`,hr.token,undefined,404);
       await request('POST', `${root}/questions/import-standard`, hr.token, {}, 404);
       await request('POST', `${root}/questions/${draft.id}/review`, hr.token, {decision: 'APPROVED'}, 404);
     });

@@ -46,6 +46,16 @@ export class QuestionService {
     if (await tx.skill.count({where: {orgId, id: {in: weights.map(w => w.skillId)}, active: true}}) !== weights.length) throw new BadRequestException('Skills must be active and belong to this company');
   }
 
+  async capabilities(userId: string, orgId: string) {
+    const member = await this.workspace.member(userId, orgId);
+    let canPropose = true;
+    try { await this.author(this.db, userId, orgId); }
+    catch (error) { if (error instanceof ForbiddenException) canPropose = false; else throw error; }
+    return {canPropose, canReview: member.role === 'HR_ADMIN',
+      canManageSkills: ['OWNER','HR_ADMIN'].includes(member.role),
+      canImportStandard: member.role === 'HR_ADMIN'};
+  }
+
   async list(userId: string, orgId: string) {
     const member = await this.workspace.member(userId, orgId);
     const visibility = member.role === 'HR_ADMIN' || member.role === 'OWNER' ? {} : {

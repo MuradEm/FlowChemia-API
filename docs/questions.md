@@ -2,6 +2,50 @@
 
 Routes require bearer authentication and use `/organizations/:orgId` as their prefix. Company questions are private to that company. Standard templates are copied into the company library only when HR explicitly imports them.
 
+## Question-management screen and capabilities
+
+The frontend **Question management** screen completes the proposal/review loop.
+It is linked from the authenticated workspace for permitted roles and from Survey
+settings for owners/HR. It reads `GET /questions/capabilities` before fetching the
+management library or displaying actions. This active-membership endpoint returns:
+
+```json
+{"canPropose":true,"canReview":false,"canManageSkills":false,"canImportStandard":false}
+```
+
+These flags reuse the same author check as POST /questions: an active owner/HR,
+a manager of a currently running team, or a current participating leader of a
+running team can propose. Only HR can review/import; only owner/HR can create
+company skills. Ordinary employees receive all false; a revoked role or ended
+team removes author permission immediately. Every mutation independently checks
+permission again; flags are UI guidance, not authorization tokens. Company scope
+and inactive membership failures remain 404, unauthenticated requests 401.
+
+Users can search wording/skill names, filter status/category and view all versions,
+review notes and mapping percentages. References for new questions are generated
+internally. **Propose new version** preserves the question key; it never updates
+an old version in place. Initial mappings are copied for deliberate revision.
+Skill questions support 1–10 active skills with positive percentages summing to
+exactly 100%; the UI accepts two percentage decimal places, corresponding to the
+API's four-decimal weights. It uses integer arithmetic to avoid rejecting
+33.33/33.33/33.34 splits. Chemistry questions send no skill mappings. Employees
+still respond using ratings or Not observed, with no writing prompts.
+
+HR reviews one version at a time, can approve or reject with an optional note,
+and cannot overwrite an earlier decision. The screen blocks approval when the
+current skill mappings/category cannot support a new survey. A corrected proposal
+needs another version and fresh review. An existing approved version remains
+usable while a newer draft is pending. New approvals become eligible for future
+adaptive selection; they are not guaranteed to appear in the next five-question
+survey, and fixed question sets are not silently reconfigured.
+
+Owners/HR can add company skills through the screen. Only HR sees the action to
+approve/import the standard library. No question deletion, in-place edits, skill
+reactivation or automatic retirement is added. Capability loss hides actions;
+uncertain mutation responses block further actions until refresh and inspection,
+without an automatic retry. Company data and unsent drafts stay in memory only.
+There is no database migration for this frontend/capabilities feature.
+
 ## Standard library
 
 `GET /questions/standard-library` exposes library version 2: 15 skill questions (three each for Technical Problem Solving, Communication, Teamwork, Leadership and Reliability) and six chemistry questions (three each for enjoyment and effectiveness). Wording lives in [standard-questions.ts](../src/standard-questions.ts). Interpret every question in the context “During your recent work together.” Use a 1–5 rating or “I haven’t observed this.”

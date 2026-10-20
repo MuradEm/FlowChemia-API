@@ -62,6 +62,9 @@ export class SurveyController {
     return this.surveys.createSkill(req.actor.userId, input.uuid(org), input.text(value.name, 'skill name'));
   }
 
+  @Get('questions/capabilities')
+  questionCapabilities(@Req() req: AuthRequest, @Param('orgId') org: string) { return this.questionLibrary.capabilities(req.actor.userId, input.uuid(org)); }
+
   @Get('questions')
   questions(@Req() req: AuthRequest, @Param('orgId') org: string) { return this.questionLibrary.list(req.actor.userId, input.uuid(org)); }
 

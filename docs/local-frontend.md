@@ -123,3 +123,20 @@ HR sees team insights; owners without an explicit manager/leader role see roster
 only. Employees see their own skills and own reported experiences. Existing
 feedback is backfilled when a missing summary is first requested. New completions
 save recalculated summaries automatically. See [insight rules](insights.md).
+
+## Update for question management
+
+Stop and update the backend first, from the API checkout:
+
+```powershell
+git pull origin main
+npm.cmd run build
+npm.cmd start
+```
+
+No new migration or dependency is required if employee cards already work.
+In the frontend checkout, stop the dev server, run `git pull origin main`, and
+restart `npm.cmd run dev`. The updated API provides the capability endpoint used
+by the workspace navigation. Open **Question management** as an owner, HR,
+current team manager or participating team leader. Only HR sees review actions.
+See the [question workflow](questions.md#question-management-screen-and-capabilities).

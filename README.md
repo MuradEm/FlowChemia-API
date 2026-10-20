@@ -53,7 +53,7 @@ The [completion report API](docs/reports.md) provides aggregate company/team pro
 
 Company-controlled [automatic scheduling](docs/scheduling.md) supports weekly, fortnightly and calendar-monthly cycles. Periodic surveys stay open without expiry; an unresolved batch blocks later cycles and missed cycles never accumulate.
 
-The [question library](docs/questions.md) provides 15 standard questions across five skills plus six pairwise chemistry questions, HR approval for company drafts, and unobserved answers without numerical ratings. Managers and team leaders can propose questions; HR must approve them before survey use.
+The [question library](docs/questions.md) provides 15 standard questions across five skills plus six pairwise chemistry questions, HR approval for company drafts, and unobserved answers without numerical ratings. Managers and team leaders can propose questions through the frontend Question management screen; HR must approve them before survey use. Owner/HR configuration, versioning and decimal skill mappings are supported, with role-based action visibility from the capability endpoint.
 
 New surveys contain five rating questions with a two-minute design target: normally three skill questions and two chemistry questions, with a four-skill/one-chemistry alternative. Written survey answers are not accepted. Older issued work stays intact; old automatic selections require five-question reconfiguration before re-enabling. See [survey format](docs/surveys.md#survey-length-and-answers).
 

@@ -34,7 +34,7 @@ Login and real-mode requests use the API's bearer sessions through Vite's
 development proxy. Session and company data remain in memory. The original
 demo is available explicitly from login and stays separate from real data.
 See [local setup](local-frontend.md) and the frontend README for startup and
-failure behavior. Company setup, survey scheduling and HR standard-library approval are available in the frontend.
+failure behavior. Company setup, survey scheduling, custom question proposals/versioning, skill mappings and HR review are available in the frontend. Question-management actions follow the API capability response.
 
 Respect the existing product rules: no written responses, no forced two-minute
 timer, and replacement does not immediately earn participation credit. The
