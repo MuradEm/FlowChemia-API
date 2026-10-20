@@ -109,3 +109,31 @@ export function indicator(
     lastAt: value.lastAt,
   };
 }
+
+export type SkillBand = "RED" | "ORANGE" | "YELLOW" | "LIGHT_GREEN" | "GREEN";
+export function skillIndicator(
+  value: Estimate,
+  now: number,
+): Indicator & { band: SkillBand | null } {
+  const result = indicator(value, now, false, true);
+  if (["UNKNOWN", "EARLY", "OLDER"].includes(result.state))
+    return { ...result, band: null };
+  // Shared boundaries belong to the next band: 20 is orange, 80 is green.
+  const band: SkillBand =
+    value.score < 20
+      ? "RED"
+      : value.score < 40
+        ? "ORANGE"
+        : value.score < 60
+          ? "YELLOW"
+          : value.score < 80
+            ? "LIGHT_GREEN"
+            : "GREEN";
+  const label =
+    band === "RED" || band === "ORANGE"
+      ? "Room for improvement"
+      : band === "YELLOW"
+        ? "On the way"
+        : "Doing well";
+  return { ...result, label, band };
+}

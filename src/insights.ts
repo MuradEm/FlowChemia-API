@@ -18,6 +18,7 @@ import {
   STAR_POINTS,
   estimate,
   indicator,
+  skillIndicator,
   type Estimate,
   type Observation,
 } from "./insight-model.js";
@@ -325,6 +326,7 @@ export class InsightService {
                 (a) => a.membershipId === m.membershipId,
               )?.role ?? "EMPLOYEE",
             isYou: m.membershipId === viewer.id,
+            skillPresentation: full ? "BANDS" : "SUMMARY",
             profile: {
               jobTitle: m.membership.jobTitle, department: m.membership.department,
               location: m.membership.location, photoUpdatedAt: m.membership.photo?.updatedAt ?? null,
@@ -340,11 +342,9 @@ export class InsightService {
                     return {
                       id: skill.id,
                       name: skill.name,
-                      indicator: indicator(
+                      indicator: skillIndicator(
                         row!.details as unknown as Estimate,
                         now.getTime(),
-                        false,
-                        true,
                       ),
                     };
                   })

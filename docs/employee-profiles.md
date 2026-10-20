@@ -92,3 +92,25 @@ and its platform-specific image processing dependency; Node 24 remains required.
 company isolation, current-team scope, real image decoding/normalization, rejected
 files, metadata removal, contact validation, login separation and card projection.
 It runs with the existing `npm run test:api` / `npm test` commands.
+
+## Five skill bands
+
+Compact team cards show every active skill. Skill projections include `band`:
+`RED` (below 20), `ORANGE` (20 to below 40), `YELLOW` (40 to below 60),
+`LIGHT_GREEN` (60 to below 80) and `GREEN` (80–100). Shared boundaries belong to
+the next band. This is categorical presentation; exact stored scores, formula,
+model version, history and refresh behavior are unchanged.
+
+For unobserved, early or older evidence, `band` is null and the evidence label
+is retained. The baseline alone never creates a coloured rating. Other skill
+labels are “Room for improvement” for red/orange, “On the way” for yellow and
+“Doing well” for the greens. Relationship indicators retain their existing labels
+and privacy rules.
+
+Employee projections include `skillPresentation`: `BANDS` for authorized team
+insight views (HR, assigned managers and participating team leaders), `SUMMARY`
+for personal employee views. Summary cards show a coloured dot and text; team
+views show five fixed segments filled through the current category. This field
+never grants skill access: `skills` remains null for unauthorized subjects.
+No migration or recomputation is needed to apply this presentation to existing
+cached scores. Boundary, evidence and projection tests cover these rules.

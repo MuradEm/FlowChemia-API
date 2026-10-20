@@ -50,3 +50,43 @@ test("recent repeated changes outweigh old evidence while preserving history and
   );
   assert.equal(indicator(mature, now).state, "POSITIVE");
 });
+
+test("five skill bands use fixed boundaries without exposing scores or turning a baseline into evidence", async () => {
+  const { skillIndicator } = await import("../src/insight-model.ts");
+  const mature = {
+    reports: 8,
+    reviewers: 3,
+    firstAt: new Date(now - 28 * day).toISOString(),
+    lastAt: new Date(now).toISOString(),
+  };
+  for (const [score, band, label] of [
+    [0, "RED", "Room for improvement"],
+    [19.99, "RED", "Room for improvement"],
+    [20, "ORANGE", "Room for improvement"],
+    [39.99, "ORANGE", "Room for improvement"],
+    [40, "YELLOW", "On the way"],
+    [59.99, "YELLOW", "On the way"],
+    [60, "LIGHT_GREEN", "Doing well"],
+    [79.99, "LIGHT_GREEN", "Doing well"],
+    [80, "GREEN", "Doing well"],
+    [100, "GREEN", "Doing well"],
+  ]) {
+    const result = skillIndicator({ ...mature, score }, now);
+    assert.equal(result.band, band);
+    assert.equal(result.label, label);
+    assert.ok(!("score" in result));
+  }
+  assert.equal(skillIndicator(estimate([], now), now).band, null);
+  assert.equal(
+    skillIndicator({ ...mature, score: 90, reports: 2 }, now).band,
+    null,
+  );
+  assert.equal(
+    skillIndicator({ ...mature, score: 90, reviewers: 1 }, now).band,
+    null,
+  );
+  assert.equal(
+    skillIndicator({ ...mature, score: 90 }, now + 127 * day).band,
+    null,
+  );
+});

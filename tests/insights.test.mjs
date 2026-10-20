@@ -111,6 +111,7 @@ test("persisted insights and role-specific team projections", async (t) => {
         const overview = await req("GET", endpoint, hr.token);
         assert.equal(overview.relationships.length, 0);
         assert.equal(overview.employees.length, 3);
+        assert.ok(overview.employees.every(e=>e.skillPresentation==='BANDS' && e.skills.length===5 && e.skills.every(s=>s.indicator.band===null)));
         assert.ok(
           overview.employees.every((e) =>
             e.skills.every((s) => s.indicator.state === "UNKNOWN"),
@@ -339,6 +340,22 @@ test("persisted insights and role-specific team projections", async (t) => {
       assert.equal((await db.query('SELECT count(*) n FROM "ParticipationCredit" WHERE "assignmentId"=$1',[assignment.id])).rows[0].n,'0');
       await db.query('DROP TRIGGER fail_insight_write ON "SkillInsight"; DROP FUNCTION fail_insight_write()');
       await req("POST",root+"/assignments/"+assignment.id+"/submit",alice.token,body);
+    });
+    await t.test('skill bands are projected from cached scores without exposing exact values',async()=>{
+      const skills=(await db.query('SELECT id FROM "Skill" WHERE "orgId"=$1 ORDER BY name',[org])).rows;
+      const bands=['RED','ORANGE','YELLOW','LIGHT_GREEN','GREEN'];
+      const scores=[10,30,50,70,90];
+      for(let i=0;i<skills.length;i++) {
+        const details={score:scores[i],reports:8,reviewers:3,firstAt:new Date(Date.now()-28*86400000).toISOString(),lastAt:new Date().toISOString()};
+        await db.query('UPDATE "SkillInsight" SET score=$1, details=$2::jsonb WHERE "membershipId"=$3 AND "skillId"=$4',[scores[i],JSON.stringify(details),bob.id,skills[i].id]);
+      }
+      const manager=(await req('GET',endpoint,hr.token)).employees.find(e=>e.membershipId===bob.id);
+      assert.equal(manager.skillPresentation,'BANDS');
+      assert.deepEqual(manager.skills.map(s=>s.indicator.band),bands);
+      const own=(await req('GET',endpoint,bob.token)).employees.find(e=>e.membershipId===bob.id);
+      assert.equal(own.skillPresentation,'SUMMARY');
+      assert.deepEqual(own.skills.map(s=>s.indicator.label),['Room for improvement','Room for improvement','On the way','Doing well','Doing well']);
+      assert.ok(!/"score":/.test(JSON.stringify(manager)));
     });
   } finally {
     await app?.close();
