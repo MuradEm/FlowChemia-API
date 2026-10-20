@@ -74,3 +74,8 @@ manual survey batches within one period. Outstanding surveys still block new
 requests, and normal automatic timing/receipts remain intact. Test answers use
 normal company records and update participation/insights; disabling the mode
 preserves all history. Apply migration 11 and regenerate/rebuild the API first.
+
+Employee profiles now support company-specific job titles, departments, locations,
+work contacts and self-managed portraits. See [employee profiles](docs/employee-profiles.md)
+for permissions, authenticated photo storage and update commands (including `npm ci`
+for the image-processing dependency).

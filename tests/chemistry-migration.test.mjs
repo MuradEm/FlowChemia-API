@@ -52,6 +52,7 @@ test('chemistry and five-question upgrades preserve history, imports and pending
     for(const expected of before){const {dimension,...actual}=(await db.query('SELECT * FROM "QuestionVersion" WHERE id=$1',[expected.id])).rows[0];assert.equal(dimension,'SKILL');assert.deepEqual(actual,expected);}
     assert.equal((await db.query('SELECT dimension FROM "QuestionVersion" WHERE id=$1',[unclassified])).rows[0].dimension,'UNSPECIFIED');
     assert.equal((await db.query('SELECT rating FROM "Answer" WHERE "assignmentId"=$1',[assignmentId])).rows[0].rating,4);
+    await db.query(await readFile(new URL('../prisma/migrations/20261020120000_employee_profiles/migration.sql',import.meta.url),'utf8'));
     client=new Database();const library=new QuestionService(client,new WorkspaceService(client),new Clock());
     const imported=await library.importStandard(userId,orgId);assert.equal(imported.createdQuestions,6);assert.equal(imported.questions.length,21);
     assert.equal((await library.importStandard(userId,orgId)).createdQuestions,0);

@@ -159,3 +159,6 @@ open **Survey settings → Test mode → Enable test mode**, then use **Generate
 surveys for everyone**. Finish outstanding surveys before requesting another batch.
 No reset, dependency change or bootstrap rerun is needed. Test answers and credits
 use the normal company data; turning mode off keeps them. See [test mode](test-mode.md).
+
+Employee profile/photo updates require the additive `20261020120000_employee_profiles`
+migration and the new sharp dependency. Follow the complete [profile update commands](employee-profiles.md#updating-an-existing-installation), including `npm.cmd ci`.

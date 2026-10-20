@@ -3,6 +3,7 @@ import { Module, Catch, HttpException, type ArgumentsHost, type ExceptionFilter 
 import { NestFactory } from '@nestjs/core';
 import express, { type Response } from 'express';
 import { InsightController, InsightService } from './insights.js';
+import { ProfileController, PeopleController, ProfileService } from './profiles.js';
 import { Database } from './database.js';
 import { Clock } from './clock.js';
 import { SurveyScheduler } from './scheduler.js';
@@ -34,11 +35,12 @@ class Errors implements ExceptionFilter {
   }
 }
 
-@Module({controllers:[InsightController,AuthController,OrganizationController,SurveyController,ReportController],providers:[InsightService,Database,AuthService,AuthGuard,WorkspaceService,QuestionService,SurveyService,ReportService,Clock,SurveyScheduler]})
+@Module({controllers:[PeopleController,ProfileController,InsightController,AuthController,OrganizationController,SurveyController,ReportController],providers:[ProfileService,InsightService,Database,AuthService,AuthGuard,WorkspaceService,QuestionService,SurveyService,ReportService,Clock,SurveyScheduler]})
 class AppModule {}
 
 export async function createApp(logger: false | undefined = undefined) {
   const app=await NestFactory.create(AppModule,{bodyParser:false,logger});
+  app.use('/organizations/:orgId/employees/:membershipId/photo', express.json({limit:'192kb'}));
   app.use(express.json({limit:'16kb'}));
   app.use((_req: unknown,res: Response,next: ()=>void)=>{
     res.setHeader('Cache-Control','no-store');

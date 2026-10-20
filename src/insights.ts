@@ -325,6 +325,10 @@ export class InsightService {
                 (a) => a.membershipId === m.membershipId,
               )?.role ?? "EMPLOYEE",
             isYou: m.membershipId === viewer.id,
+            profile: {
+              jobTitle: m.membership.jobTitle, department: m.membership.department,
+              location: m.membership.location, photoUpdatedAt: m.membership.photo?.updatedAt ?? null,
+            },
             skills:
               full || m.membershipId === viewer.id
                 ? activeSkills.map((skill) => {
@@ -436,7 +440,7 @@ export class InsightService {
           },
           include: {
             membership: {
-              include: { user: { select: { displayName: true } } },
+              include: { user: { select: { displayName: true } }, photo: {select: {updatedAt: true}} },
             },
           },
           orderBy: { joinedAt: "asc" },

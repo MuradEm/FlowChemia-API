@@ -15,7 +15,7 @@
     "build": "tsc -p tsconfig.json",
     "start": "node --env-file=.env dist/src/main.js",
     "dev": "npm run build && npm start",
-    "test:api": "npm run build && node --env-file=.env --test tests/api.test.mjs tests/surveys.test.mjs tests/participation.test.mjs tests/reports.test.mjs tests/scheduler.test.mjs tests/questions.test.mjs tests/adaptive-surveys.test.mjs tests/question-selection.test.mjs tests/insights.test.mjs tests/insight-model.test.mjs tests/test-mode.test.mjs",
+    "test:api": "npm run build && node --env-file=.env --test tests/api.test.mjs tests/surveys.test.mjs tests/participation.test.mjs tests/reports.test.mjs tests/scheduler.test.mjs tests/questions.test.mjs tests/adaptive-surveys.test.mjs tests/question-selection.test.mjs tests/insights.test.mjs tests/insight-model.test.mjs tests/test-mode.test.mjs tests/profiles.test.mjs",
     "bootstrap": "node --env-file=.env dist/scripts/bootstrap.js",
     "test:auth": "node --test tests/password.test.mjs tests/bootstrap-input.test.mjs",
     "test:bootstrap": "npm run build && node --env-file=.env --test tests/bootstrap.test.mjs",
@@ -36,7 +36,8 @@
     "express": "5.1.0",
     "pg": "8.16.3",
     "reflect-metadata": "0.2.2",
-    "rxjs": "7.8.2"
+    "rxjs": "7.8.2",
+    "sharp": "0.34.5"
   },
   "devDependencies": {
     "@prisma/internals": "7.10.1",
