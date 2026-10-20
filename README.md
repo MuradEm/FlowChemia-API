@@ -68,3 +68,9 @@ The experimental lab now shows recent reviewer diversity, evidence concentration
 The completed fresh-team exercise led to a [current scoring decision](docs/scoring.md): revised star values and a 70-point starting baseline weighted like five reports, with real evidence displayed separately. The comparison is reproducible; production scoring remains unimplemented.
 
 The [frontend starting point](docs/frontend-start.md) records the employee flow and the remaining joint design decisions. Browser testing against a disposable database verifies login, company isolation, real submission/skip/replacement, expired sessions, logout, historical question counts and uncertain-response recovery without changing development data.
+
+Company owners/HR can enable [company test mode](docs/test-mode.md) for repeated
+manual survey batches within one period. Outstanding surveys still block new
+requests, and normal automatic timing/receipts remain intact. Test answers use
+normal company records and update participation/insights; disabling the mode
+preserves all history. Apply migration 11 and regenerate/rebuild the API first.

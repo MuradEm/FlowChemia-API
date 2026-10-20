@@ -140,3 +140,22 @@ restart `npm.cmd run dev`. The updated API provides the capability endpoint used
 by the workspace navigation. Open **Question management** as an owner, HR,
 current team manager or participating team leader. Only HR sees review actions.
 See the [question workflow](questions.md#question-management-screen-and-capabilities).
+
+## Update for company test mode
+
+Stop the API and run in the backend checkout:
+
+```powershell
+git pull origin main
+npm.cmd run db:migrate
+npm.cmd run db:generate
+npm.cmd run build
+npm.cmd start
+```
+
+Migration 11 defaults all companies to normal mode and preserves existing data.
+Pull main in the frontend checkout and restart `npm.cmd run dev`. As owner or HR,
+open **Survey settings → Test mode → Enable test mode**, then use **Generate test
+surveys for everyone**. Finish outstanding surveys before requesting another batch.
+No reset, dependency change or bootstrap rerun is needed. Test answers and credits
+use the normal company data; turning mode off keeps them. See [test mode](test-mode.md).

@@ -70,3 +70,12 @@ answered evidence. Generation retries retain the original subsets.
 `npm run test:calendar` checks weekly and fortnightly boundaries, calendar-month end, leap years, timezone anchors and both DST transitions. The scheduler HTTP/integration suite uses an injected internal clock to run several months without waiting or exposing a client-controlled time parameter. It verifies presets/access, opt-in, concurrent generation, persistent unanswered requests, both-survey blocking, team changes, completion timing, missed cycles, pause, monthly generation through DST and failure isolation/retry.
 
 Migration 8 pauses automatic policies with an old question count. Their selected IDs and outstanding requests remain intact. Owner/HR must select an approved five-question set and explicitly enable automation again. `requiresQuestionSetUpdate` identifies a non-empty current selection with the old count. The generation timing, no-backlog rule and outstanding-work gate continue to apply.
+
+## Extra manual test batches
+
+The default scheduling rules above remain in force. Owner/HR can explicitly
+activate [company test mode](test-mode.md) to issue additional manual batches in
+the same period, while unresolved surveys still block new work. Test receipts
+are separate from normal period receipts and never change automatic timing.
+`GET /feedback-policy` supplies the flag and an authoritative normal-period
+processed indicator for the UI. Mode changes don't delete policies or feedback.

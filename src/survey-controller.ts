@@ -16,6 +16,13 @@ function ids(raw: unknown, min: number, max: number): string[] {
 export class SurveyController {
   constructor(private readonly surveys: SurveyService, private readonly questionLibrary: QuestionService) {}
 
+  @Patch('test-mode')
+  testMode(@Req() req: AuthRequest, @Param('orgId') org: string, @Body() raw: unknown) {
+    const value=input.body(raw,['enabled']);
+    if(typeof value.enabled!=='boolean')throw new BadRequestException('Choose enabled or disabled');
+    return this.surveys.setTestMode(req.actor.userId,input.uuid(org),value.enabled);
+  }
+
   @Get('feedback-policy')
   schedule(@Req() req: AuthRequest, @Param('orgId') org: string) { return this.surveys.schedule(req.actor.userId, input.uuid(org)); }
 
@@ -100,6 +107,12 @@ export class SurveyController {
     const value = input.body(raw, ['decision', 'note']);
     if (value.decision !== 'APPROVED' && value.decision !== 'REJECTED') throw new BadRequestException('Choose APPROVED or REJECTED');
     return this.questionLibrary.review(req.actor.userId, input.uuid(org), input.uuid(id), value.decision, value.note === undefined ? undefined : input.text(value.note, 'review note', 1000));
+  }
+
+  @Post('surveys/generate-test') @HttpCode(200)
+  testBatch(@Req() req: AuthRequest, @Param('orgId') org: string, @Body() raw: unknown) {
+    const value=input.body(raw,['requestId']);
+    return this.surveys.testBatch(req.actor.userId,input.uuid(org),input.uuid(value.requestId));
   }
 
   @Post('surveys/generate-periodic') @HttpCode(200)

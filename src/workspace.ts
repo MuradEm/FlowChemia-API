@@ -30,7 +30,7 @@ export class WorkspaceService {
   }
   async organization(userId: string, orgId: string) {
     await this.member(userId,orgId);
-    return this.db.organization.findUniqueOrThrow({where:{id:orgId},select:{id:true,name:true}});
+    return this.db.organization.findUniqueOrThrow({where:{id:orgId},select:{id:true,name:true,testMode:true}});
   }
   async members(userId: string, orgId: string) {
     await this.admin(userId,orgId);

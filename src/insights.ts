@@ -307,7 +307,12 @@ export class InsightService {
             })),
           },
         });
+        const company = await tx.organization.findUniqueOrThrow({
+          where: { id: orgId },
+          select: { testMode: true },
+        });
         return {
+          testMode: company.testMode,
           team: { id: team.id, name: team.name },
           mode,
           modelVersion: MODEL_VERSION,

@@ -49,6 +49,7 @@ enum SurveyKind {
 }
 
 model Organization {
+  testMode Boolean @default(false)
   surveyGenerations            SurveyGeneration[]
   participationCredits         ParticipationCredit[]
   feedbackPolicies             FeedbackPolicy[]
@@ -207,6 +208,7 @@ model QuestionSkill {
 }
 
 model Survey {
+  testRunId String @default("NORMAL")
   questionSelection     String            @default("MANUAL")
   legacyClosesAt        DateTime?
   generationId          String?           @db.Uuid
@@ -225,7 +227,7 @@ model Survey {
 
   @@unique([orgId, teamId, id])
   @@unique([orgId, id])
-  @@unique([orgId, teamId, kind, opensAt])
+  @@unique([orgId, teamId, kind, opensAt, testRunId])
 }
 
 model SurveyQuestion {
@@ -422,6 +424,7 @@ model ParticipationCredit {
 }
 
 model SurveyGeneration {
+  testRunId String @default("NORMAL")
   questionSelection         String         @default("MANUAL")
   id                        String         @id @default(uuid()) @db.Uuid
   orgId                     String         @db.Uuid
@@ -437,5 +440,6 @@ model SurveyGeneration {
   surveys                   Survey[]
 
   @@unique([orgId, id])
-  @@unique([orgId, scheduledFor])
+  @@unique([orgId, scheduledFor, testRunId])
+  @@index([orgId, testRunId])
 }

@@ -72,6 +72,7 @@ test('chemistry and five-question upgrades preserve history, imports and pending
     assert.equal(policy.automaticEnabled,false);assert.equal(policy.automaticStartsAt,null);assert.deepEqual(policy.questionVersionIds,legacyIds);
     assert.deepEqual((await db.query('SELECT "questionVersionIds" FROM "SurveyGeneration" WHERE id=$1',[generationId])).rows[0].questionVersionIds,legacyIds);
     await db.query(await readFile(new URL('../prisma/migrations/20261020090000_insight_details/migration.sql',import.meta.url),'utf8'));
+    await db.query(await readFile(new URL('../prisma/migrations/20261020100000_company_test_mode/migration.sql',import.meta.url),'utf8'));
     const workspace=new WorkspaceService(client), clock=new Clock();
     const surveys=new SurveyService(client,workspace,clock,new InsightService(client,workspace,clock));
     assert.equal((await surveys.schedule(userId,orgId)).requiresQuestionSetUpdate,true);

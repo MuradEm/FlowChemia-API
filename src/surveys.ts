@@ -53,6 +53,14 @@ export class SurveyService {
     return {policy, ...calendarWindow(settings, now)};
   }
 
+  async setTestMode(userId: string, orgId: string, enabled: boolean) {
+    await this.workspace.admin(userId, orgId);
+    return this.db.$transaction(async tx => {
+      await this.lock(tx, orgId);
+      return tx.organization.update({where:{id:orgId},data:{testMode:enabled},select:{testMode:true}});
+    });
+  }
+
   async schedule(userId: string, orgId: string) {
     await this.workspace.member(userId, orgId);
     return this.db.$transaction(async tx => {
@@ -60,12 +68,14 @@ export class SurveyService {
       const now = this.clock.now();
       const current = await this.policy(tx, orgId, now);
       const pending = await tx.feedbackPolicy.findFirst({where: {orgId, effectiveFrom: {gt: now}}, orderBy: {effectiveFrom: 'asc'}});
-      const lastGeneration = await tx.surveyGeneration.findFirst({where: {orgId}, orderBy: {scheduledFor: 'desc'}});
+      const company=await tx.organization.findUniqueOrThrow({where:{id:orgId},select:{testMode:true}});
+      const lastNormalGeneration = await tx.surveyGeneration.findFirst({where:{orgId,testRunId:'NORMAL'},orderBy:{scheduledFor:'desc'}});
+      const lastGeneration = await tx.surveyGeneration.findFirst({where:{orgId},orderBy:[{createdAt:'desc'},{id:'desc'}]});
       let nextGenerationAt: Date | null = current.policy.automaticEnabled ?
         (current.policy.automaticStartsAt && current.policy.automaticStartsAt > now ? current.policy.automaticStartsAt :
-          lastGeneration && lastGeneration.scheduledFor >= current.opensAt ? current.closesAt : current.opensAt) : null;
+          lastNormalGeneration && lastNormalGeneration.scheduledFor >= current.opensAt ? current.closesAt : current.opensAt) : null;
       if (pending && (!nextGenerationAt || pending.effectiveFrom <= nextGenerationAt)) nextGenerationAt = pending.automaticEnabled ? pending.automaticStartsAt : null;
-      return {...current, pending, nextGenerationAt, lastGeneration, surveyFormat: SURVEY_FORMAT, requiresQuestionSetUpdate: current.policy.questionSelection === 'MANUAL' && current.policy.questionVersionIds.length > 0 && current.policy.questionVersionIds.length !== SURVEY_FORMAT.questionCount};
+      return {...current, pending, nextGenerationAt, lastGeneration: lastGeneration?{...lastGeneration,isTest:lastGeneration.testRunId!=='NORMAL'}:null, testMode:company.testMode, currentPeriodProcessed:!!lastNormalGeneration&&lastNormalGeneration.scheduledFor.getTime()===current.opensAt.getTime(), surveyFormat: SURVEY_FORMAT, requiresQuestionSetUpdate: current.policy.questionSelection === 'MANUAL' && current.policy.questionVersionIds.length > 0 && current.policy.questionVersionIds.length !== SURVEY_FORMAT.questionCount};
     });
   }
 
@@ -100,7 +110,7 @@ export class SurveyService {
         if (settings.questionVersionIds.length && (settings.automaticEnabled || change.questionVersionIds !== undefined)) await this.checkQuestions(tx, orgId, settings.questionVersionIds);
         if (settings.automaticEnabled && !settings.questionVersionIds.length) throw new BadRequestException('Select a question set before enabling automatic surveys');
       }
-      const hasSurveys = await tx.survey.count({where: {orgId, kind: 'PERIODIC', opensAt: current.opensAt}});
+      const hasSurveys = await tx.survey.count({where: {orgId, kind: 'PERIODIC', opensAt: current.opensAt, testRunId:'NORMAL'}});
       const pause = change.automaticEnabled === false;
       const effectiveFrom = hasSurveys && !pause ? current.closesAt : now;
       if (calendarChanged) {
@@ -163,14 +173,26 @@ export class SurveyService {
     return this.generate(orgId, questionIds, false);
   }
 
+  async testBatch(userId: string, orgId: string, requestId: string) {
+    await this.workspace.admin(userId, orgId);
+    return this.generate(orgId, undefined, false, requestId);
+  }
+
   async generateAutomatic(orgId: string) {
     return this.generate(orgId, undefined, true);
   }
 
-  private async generate(orgId: string, selectedQuestions: string[] | undefined, automatic: boolean) {
+  private async generate(orgId: string, selectedQuestions: string[] | undefined, automatic: boolean, testRunId = 'NORMAL') {
     return this.db.$transaction(async tx => {
       await this.lock(tx, orgId);
       const now = this.clock.now();
+      const isTest=testRunId!=='NORMAL';
+      if(isTest) {
+        const prior=await tx.surveyGeneration.findFirst({where:{orgId,testRunId},include:{policy:true}});
+        if(prior) return {generationId:prior.id,periodStart:prior.scheduledFor,periodEnd:calendarWindow(prior.policy,prior.scheduledFor).closesAt,createdSurveys:0,createdAssignments:0,blockedEmployees:0,employeesWithLimitedPeers:0,alreadyProcessed:true,isTest:true};
+        const company=await tx.organization.findUniqueOrThrow({where:{id:orgId},select:{testMode:true}});
+        if(!company.testMode)throw new ConflictException('Enable company test mode before generating test batches');
+      }
       const {policy, opensAt, closesAt} = await this.policy(tx, orgId, now);
       if (automatic && (!policy.automaticEnabled || !policy.automaticStartsAt || now < policy.automaticStartsAt || opensAt < policy.automaticStartsAt)) return null;
       const adaptive = policy.questionSelection === 'ADAPTIVE';
@@ -179,15 +201,15 @@ export class SurveyService {
       if (!adaptive && !receiptIds.length) throw new BadRequestException('Select five questions');
       if (policy.automaticEnabled && selectedQuestions && JSON.stringify(selectedQuestions) !== JSON.stringify(policy.questionVersionIds)) throw new ConflictException('Use the configured automatic question set');
       if (!adaptive) await this.checkQuestions(tx, orgId, receiptIds);
-      const previous = await tx.surveyGeneration.findUnique({where: {orgId_scheduledFor: {orgId, scheduledFor: opensAt}}});
+      const previous = await tx.surveyGeneration.findUnique({where: {orgId_scheduledFor_testRunId: {orgId, scheduledFor: opensAt, testRunId}}});
       if (previous) {
         if (previous.questionSelection !== policy.questionSelection || JSON.stringify(previous.questionVersionIds) !== JSON.stringify(receiptIds)) throw new ConflictException('This period already uses a different question set');
-        return {generationId: previous.id, periodStart: opensAt, periodEnd: closesAt, createdSurveys: 0, createdAssignments: 0, blockedEmployees: 0, employeesWithLimitedPeers: 0, alreadyProcessed: true};
+        return {generationId: previous.id, periodStart: opensAt, periodEnd: closesAt, createdSurveys: 0, createdAssignments: 0, blockedEmployees: 0, employeesWithLimitedPeers: 0, alreadyProcessed: true, isTest};
       }
       const pool = adaptive ? await this.adaptivePool(tx, orgId) : [];
       const questionIds = adaptive ? pool.map(q=>q.id) : receiptIds;
       const context = adaptive ? await this.selectionContext(tx, orgId, now) : null;
-      const generation = await tx.surveyGeneration.create({data: {orgId, policyId: policy.id, scheduledFor: opensAt, createdAt: now, questionSelection: policy.questionSelection, questionVersionIds: receiptIds}});
+      const generation = await tx.surveyGeneration.create({data: {orgId, policyId: policy.id, scheduledFor: opensAt, testRunId, createdAt: now, questionSelection: policy.questionSelection, questionVersionIds: receiptIds}});
       const teams = await tx.team.findMany({where: {orgId, startsAt: {lte: now}, OR: [{endsAt: null}, {endsAt: {gt: now}}]}, include: {TeamMember_team: {where: {joinedAt: {lte: now}, leftAt: null, membership: {active: true, role: {not: 'HR_ADMIN'}}}}}, orderBy: {id: 'asc'}});
       type Candidate = {teamId: string; respondentId: string; subjectId: string; subjectMembershipId: string};
       const candidates = new Map<string, Map<string, Candidate>>();
@@ -202,10 +224,10 @@ export class SurveyService {
       // the scheduled boundary, even if they completed before this retry.
       const outstanding = await tx.assignment.findMany({where: {orgId, respondent: {membershipId: {in: [...candidates.keys()]}}, OR: [
         {status: 'OPEN', survey: {OR: [{closesAt: null}, {closesAt: {gt: now}}]}},
-        {closedAt: {gt: opensAt}, survey: {OR: [{closesAt: null}, {closesAt: {gt: opensAt}}]}},
+        ...(!isTest?[{closedAt: {gt: opensAt}, survey: {OR: [{closesAt: null}, {closesAt: {gt: opensAt}}]}}]:[]),
       ]}, select: {respondent: {select: {membershipId: true}}}});
       const blocked = new Set(outstanding.map(a => a.respondent.membershipId));
-      const existingSurveys = await tx.survey.findMany({where: {orgId, kind: 'PERIODIC', opensAt}, include: {SurveyQuestion_survey: {orderBy: {position: 'asc'}}}});
+      const existingSurveys = await tx.survey.findMany({where: {orgId, kind: 'PERIODIC', opensAt, testRunId}, include: {SurveyQuestion_survey: {orderBy: {position: 'asc'}}}});
       for (const s of existingSurveys) if (s.questionSelection !== policy.questionSelection || JSON.stringify(s.SurveyQuestion_survey.map(q => q.questionVersionId)) !== JSON.stringify(questionIds)) throw new ConflictException('This period already uses a different question set');
       const surveys = new Map(existingSurveys.map(s => [s.teamId, s.id]));
       let createdAssignments = 0;
@@ -218,7 +240,7 @@ export class SurveyService {
         for (const peer of selected) {
           let surveyId = surveys.get(peer.teamId);
           if (!surveyId) {
-            const survey = await tx.survey.create({data: {orgId, teamId: peer.teamId, kind: 'PERIODIC', opensAt, closesAt: null, generationId: generation.id, questionSelection: policy.questionSelection}});
+            const survey = await tx.survey.create({data: {orgId, teamId: peer.teamId, kind: 'PERIODIC', opensAt: isTest?now:opensAt, testRunId, closesAt: null, generationId: generation.id, questionSelection: policy.questionSelection}});
             await tx.surveyQuestion.createMany({data: questionIds.map((id, i) => ({orgId, surveyId: survey.id, questionVersionId: id, position: i + 1}))});
             surveyId = survey.id; surveys.set(peer.teamId, surveyId); createdSurveys++;
           }
@@ -229,7 +251,7 @@ export class SurveyService {
         }
       }
       await tx.surveyGeneration.update({where: {id: generation.id}, data: {createdAssignments, blockedEmployees: blocked.size, employeesWithLimitedPeers}});
-      return {generationId: generation.id, periodStart: opensAt, periodEnd: closesAt, createdSurveys, createdAssignments, blockedEmployees: blocked.size, employeesWithLimitedPeers, alreadyProcessed: false};
+      return {generationId: generation.id, periodStart: opensAt, periodEnd: closesAt, createdSurveys, createdAssignments, blockedEmployees: blocked.size, employeesWithLimitedPeers, alreadyProcessed: false, isTest};
     }, {timeout: 30000, maxWait: 10000});
   }
 
@@ -284,13 +306,13 @@ export class SurveyService {
     await this.workspace.member(userId, orgId);
     const now = this.clock.now();
     const assignments = await this.db.assignment.findMany({where: {orgId, status: 'OPEN', respondent: {membership: {userId, active: true}}, survey: {opensAt: {lte: now}, OR: [{closesAt: null}, {closesAt: {gt: now}}]}}, include: {credit: true, replacement: {select: {id: true}}, respondent: true, subject: {include: {membership: {include: {user: {select: {displayName: true}}}}}}, survey: {include: {team: true}}}, orderBy: {createdAt: 'asc'}});
-    return assignments.map(a => ({id: a.id, teamId: a.teamId, teamName: a.survey.team.name, type: a.survey.kind, subject: {membershipId: a.subject.membershipId, displayName: a.subject.membership.user.displayName}, requiresReplacement: !a.subject.membership.active, closesAt: a.survey.closesAt}));
+    return assignments.map(a => ({id: a.id, teamId: a.teamId, teamName: a.survey.team.name, type: a.survey.kind, isTest:a.survey.testRunId!=='NORMAL', subject: {membershipId: a.subject.membershipId, displayName: a.subject.membership.user.displayName}, requiresReplacement: !a.subject.membership.active, closesAt: a.survey.closesAt}));
   }
 
   async detail(userId: string, orgId: string, assignmentId: string) {
     await this.workspace.member(userId, orgId);
     const a = await this.ownAssignment(this.db, userId, orgId, assignmentId);
-    return {id: a.id, type: a.survey.kind, team: {id: a.teamId, name: a.survey.team.name}, subject: {membershipId: a.subject.membershipId, displayName: a.subject.membership.user.displayName}, opensAt: a.survey.opensAt, closesAt: a.survey.closesAt, submittedAt: a.submittedAt, requiresReplacement: !a.subject.membership.active, status: a.status, closedAt: a.closedAt, replacementAssignmentId: a.replacement?.id ?? null, participationPercentage: a.credit?.percentage ?? null, surveyFormat: {...SURVEY_FORMAT, questionCount: this.assignedQuestions(a).length}, questions: this.assignedQuestions(a).map(q => ({id: q.questionVersionId, text: q.question.text, dimension: q.question.dimension, notObservedRating: null, scaleMin: 1, scaleMax: 5}))};
+    return {id: a.id, type: a.survey.kind, isTest:a.survey.testRunId!=='NORMAL', team: {id: a.teamId, name: a.survey.team.name}, subject: {membershipId: a.subject.membershipId, displayName: a.subject.membership.user.displayName}, opensAt: a.survey.opensAt, closesAt: a.survey.closesAt, submittedAt: a.submittedAt, requiresReplacement: !a.subject.membership.active, status: a.status, closedAt: a.closedAt, replacementAssignmentId: a.replacement?.id ?? null, participationPercentage: a.credit?.percentage ?? null, surveyFormat: {...SURVEY_FORMAT, questionCount: this.assignedQuestions(a).length}, questions: this.assignedQuestions(a).map(q => ({id: q.questionVersionId, text: q.question.text, dimension: q.question.dimension, notObservedRating: null, scaleMin: 1, scaleMax: 5}))};
   }
 
   private async lockedOwn(tx: Tx, userId: string, orgId: string, assignmentId: string) {
@@ -321,7 +343,8 @@ export class SurveyService {
 
   async participation(userId: string, orgId: string) {
     const member = await this.workspace.member(userId, orgId);
-    return this.db.participationCredit.findMany({where: {orgId, membershipId: member.id}, select: {id: true, assignmentId: true, outcome: true, percentage: true, createdAt: true}, orderBy: [{createdAt: 'desc'}, {id: 'asc'}], take: 200});
+    const credits=await this.db.participationCredit.findMany({where: {orgId, membershipId: member.id}, select: {id: true, assignmentId: true, outcome: true, percentage: true, createdAt: true, assignment:{select:{survey:{select:{testRunId:true}}}}}, orderBy: [{createdAt: 'desc'}, {id: 'asc'}], take: 200});
+    return credits.map(({assignment,...credit})=>({...credit,isTest:assignment.survey.testRunId!=='NORMAL'}));
   }
 
   async skip(userId: string, orgId: string, assignmentId: string) {
@@ -342,7 +365,7 @@ export class SurveyService {
       const a = await this.lockedOwn(tx, userId, orgId, assignmentId);
       this.assertOpen(a, false);
       const now = this.clock.now();
-      const scope: Prisma.AssignmentWhereInput = a.survey.kind === 'MILESTONE' ? {surveyId: a.surveyId} : {survey: {kind: a.survey.kind, opensAt: a.survey.opensAt}};
+      const scope: Prisma.AssignmentWhereInput = a.survey.kind === 'MILESTONE' ? {surveyId: a.surveyId} : {survey: {kind: a.survey.kind, opensAt: a.survey.opensAt, testRunId:a.survey.testRunId}};
       const used = await tx.assignment.findMany({where: {orgId, ...scope, respondent: {membershipId: a.respondent.membershipId}}, select: {subject: {select: {membershipId: true}}}});
       const excluded = new Set([a.respondent.membershipId, ...used.map(p => p.subject.membershipId)]);
       type Peer = {teamId: string; respondentId: string; subjectId: string};
@@ -374,9 +397,9 @@ export class SurveyService {
       let surveyId = a.surveyId;
       if (selected.teamId !== a.teamId) {
         const questionIds = a.survey.SurveyQuestion_survey.map(q => q.questionVersionId);
-        let survey = await tx.survey.findFirst({where: {orgId, teamId: selected.teamId, kind: a.survey.kind, opensAt: a.survey.opensAt}, include: {SurveyQuestion_survey: {orderBy: {position: 'asc'}}}});
+        let survey = await tx.survey.findFirst({where: {orgId, teamId: selected.teamId, kind: a.survey.kind, opensAt: a.survey.opensAt, testRunId:a.survey.testRunId}, include: {SurveyQuestion_survey: {orderBy: {position: 'asc'}}}});
         if (!survey) {
-          const created = await tx.survey.create({data: {orgId, teamId: selected.teamId, kind: a.survey.kind, opensAt: a.survey.opensAt, closesAt: a.survey.closesAt, generationId: a.survey.generationId, questionSelection: a.survey.questionSelection}});
+          const created = await tx.survey.create({data: {orgId, teamId: selected.teamId, kind: a.survey.kind, opensAt: a.survey.opensAt, testRunId:a.survey.testRunId, closesAt: a.survey.closesAt, generationId: a.survey.generationId, questionSelection: a.survey.questionSelection}});
           await tx.surveyQuestion.createMany({data: questionIds.map((id, i) => ({orgId, surveyId: created.id, questionVersionId: id, position: i + 1}))});
           surveyId = created.id;
         } else {
