@@ -162,3 +162,8 @@ use the normal company data; turning mode off keeps them. See [test mode](test-m
 
 Employee profile/photo updates require the additive `20261020120000_employee_profiles`
 migration and the new sharp dependency. Follow the complete [profile update commands](employee-profiles.md#updating-an-existing-installation), including `npm.cmd ci`.
+
+The shared navigation/account popup and team builder require both repositories to
+be updated. Follow [team builder update commands](team-builder.md#updating), including
+the additive `20261021090000_team_builder_requests` migration. No new dependency or
+account bootstrap is needed if the profile/photo release is already installed.

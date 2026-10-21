@@ -79,3 +79,9 @@ Employee profiles now support company-specific job titles, departments, location
 work contacts and self-managed portraits. See [employee profiles](docs/employee-profiles.md)
 for permissions, authenticated photo storage and update commands (including `npm ci`
 for the image-processing dependency).
+
+The [team builder](docs/team-builder.md) supports manual employee selection,
+permission-scoped skill/chemistry previews and atomic team creation/editing. The
+personal card endpoint powers the shared workspace account popup. Apply the
+additive retry-receipt migration when updating; existing team and survey history
+is preserved.

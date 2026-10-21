@@ -1,3 +1,4 @@
+import type { Prisma } from '../generated/prisma/client.js';
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Database } from './database.js';
 import { hashPassword, tokenHash, newToken } from './password.js';
@@ -6,13 +7,13 @@ import { hashPassword, tokenHash, newToken } from './password.js';
 export class WorkspaceService {
   constructor(private readonly db: Database) {}
 
-  async member(userId: string, orgId: string) {
-    const member = await this.db.membership.findUnique({where: {orgId_userId: {orgId,userId}}});
+  async member(userId: string, orgId: string, db: Prisma.TransactionClient = this.db) {
+    const member = await db.membership.findUnique({where: {orgId_userId: {orgId,userId}}});
     if (!member?.active) throw new NotFoundException('Organization not found');
     return member;
   }
-  async admin(userId: string, orgId: string) {
-    const member = await this.member(userId, orgId);
+  async admin(userId: string, orgId: string, db: Prisma.TransactionClient = this.db) {
+    const member = await this.member(userId, orgId, db);
     if (!['OWNER','HR_ADMIN'].includes(member.role)) throw new ForbiddenException();
     return member;
   }
@@ -67,15 +68,15 @@ export class WorkspaceService {
       return {membership};
     });
   }
-  async teamScope(userId: string, orgId: string, teamId: string, manage = false) {
-    const member = await this.member(userId,orgId);
-    const team = await this.db.team.findFirst({where:{id:teamId,orgId}});
+  async teamScope(userId: string, orgId: string, teamId: string, manage = false, db: Prisma.TransactionClient = this.db) {
+    const member = await this.member(userId,orgId,db);
+    const team = await db.team.findFirst({where:{id:teamId,orgId}});
     if (!team) throw new NotFoundException('Team not found');
     if (['OWNER','HR_ADMIN'].includes(member.role)) return team;
-    const access = await this.db.teamAccess.findUnique({where:{orgId_teamId_membershipId:{orgId,teamId,membershipId:member.id}}});
+    const access = await db.teamAccess.findUnique({where:{orgId_teamId_membershipId:{orgId,teamId,membershipId:member.id}}});
     if (manage) {
       if (access?.role!=='MANAGER') throw new ForbiddenException();
-    } else if (access?.role!=='MANAGER' && !await this.db.teamMember.findFirst({where:{orgId,teamId,membershipId:member.id,leftAt:null}})) throw new NotFoundException('Team not found');
+    } else if (access?.role!=='MANAGER' && !await db.teamMember.findFirst({where:{orgId,teamId,membershipId:member.id,leftAt:null}})) throw new NotFoundException('Team not found');
     return team;
   }
   async teams(userId: string, orgId: string) {
@@ -95,36 +96,41 @@ export class WorkspaceService {
     return {id:team.id,name:team.name,startsAt:team.startsAt,endsAt:team.endsAt,members:members.map(m=>({id:m.id,membershipId:m.membershipId,displayName:m.membership.user.displayName,joinedAt:m.joinedAt})),access};
   }
   async addMember(userId: string, orgId: string, teamId: string, membershipId: string) {
-    const team = await this.teamScope(userId,orgId,teamId,true);
-    if (team.endsAt && team.endsAt<=new Date()) throw new BadRequestException('Team has ended');
-    const member = await this.db.membership.findFirst({where:{id:membershipId,orgId,active:true}});
-    if (!member) throw new NotFoundException('Employee not found');
-    if (member.role==='HR_ADMIN') throw new BadRequestException('HR administrators must remain independent of teams');
-    return this.db.teamMember.create({data:{orgId,teamId,membershipId,joinedAt:new Date()},select:{id:true,membershipId:true,joinedAt:true}});
+    return this.db.$transaction(async tx=>{
+      await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(${orgId},0))`;
+      const team=await this.teamScope(userId,orgId,teamId,true,tx);
+      if(team.endsAt&&team.endsAt<=new Date())throw new BadRequestException('Team has ended');
+      const member=await tx.membership.findFirst({where:{id:membershipId,orgId,active:true}});
+      if(!member)throw new NotFoundException('Employee not found');
+      if(member.role==='HR_ADMIN')throw new BadRequestException('HR administrators must remain independent of teams');
+      return tx.teamMember.create({data:{orgId,teamId,membershipId,joinedAt:new Date()},select:{id:true,membershipId:true,joinedAt:true}});
+    });
   }
   async removeMember(userId: string, orgId: string, teamId: string, membershipId: string) {
-    await this.teamScope(userId,orgId,teamId,true);
     await this.db.$transaction(async tx=>{
-      const changed = await tx.teamMember.updateMany({where:{orgId,teamId,membershipId,leftAt:null},data:{leftAt:new Date()}});
-      if (!changed.count) throw new NotFoundException('Team member not found');
-      // Leaving removes leader rights; separate nonparticipant manager grants remain.
+      await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(${orgId},0))`;
+      await this.teamScope(userId,orgId,teamId,true,tx);
+      const changed=await tx.teamMember.updateMany({where:{orgId,teamId,membershipId,leftAt:null},data:{leftAt:new Date()}});
+      if(!changed.count)throw new NotFoundException('Team member not found');
       await tx.teamAccess.deleteMany({where:{orgId,teamId,membershipId,role:'TEAM_LEADER'}});
-    });
-    return {ok:true};
+    });return {ok:true};
   }
   async grant(userId: string, orgId: string, teamId: string, membershipId: string, role: 'MANAGER'|'TEAM_LEADER') {
-    await this.admin(userId,orgId);
-    await this.teamScope(userId,orgId,teamId);
-    const member = await this.db.membership.findFirst({where:{id:membershipId,orgId,active:true}});
-    if (!member) throw new NotFoundException('Employee not found');
-    if (member.role==='HR_ADMIN') throw new BadRequestException('HR administrators must remain independent');
-    if (role==='TEAM_LEADER' && !await this.db.teamMember.findFirst({where:{orgId,teamId,membershipId,leftAt:null}})) throw new BadRequestException('A team leader must participate in the team');
-    return this.db.teamAccess.upsert({where:{orgId_teamId_membershipId:{orgId,teamId,membershipId}},create:{orgId,teamId,membershipId,role},update:{role},select:{membershipId:true,role:true}});
+    return this.db.$transaction(async tx=>{
+      await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(${orgId},0))`;
+      await this.admin(userId,orgId,tx);await this.teamScope(userId,orgId,teamId,false,tx);
+      const member=await tx.membership.findFirst({where:{id:membershipId,orgId,active:true}});
+      if(!member)throw new NotFoundException('Employee not found');
+      if(member.role==='HR_ADMIN')throw new BadRequestException('HR administrators must remain independent');
+      if(role==='TEAM_LEADER'&&!await tx.teamMember.findFirst({where:{orgId,teamId,membershipId,leftAt:null}}))throw new BadRequestException('A team leader must participate in the team');
+      return tx.teamAccess.upsert({where:{orgId_teamId_membershipId:{orgId,teamId,membershipId}},create:{orgId,teamId,membershipId,role},update:{role},select:{membershipId:true,role:true}});
+    });
   }
   async revoke(userId: string, orgId: string, teamId: string, membershipId: string) {
-    await this.admin(userId,orgId);
-    await this.teamScope(userId,orgId,teamId);
-    await this.db.teamAccess.deleteMany({where:{orgId,teamId,membershipId}});
-    return {ok:true};
+    await this.db.$transaction(async tx=>{
+      await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(${orgId},0))`;
+      await this.admin(userId,orgId,tx);await this.teamScope(userId,orgId,teamId,false,tx);
+      await tx.teamAccess.deleteMany({where:{orgId,teamId,membershipId}});
+    });return {ok:true};
   }
 }

@@ -120,7 +120,19 @@ model Membership {
   @@unique([orgId, id])
 }
 
+model TeamBuildRequest {
+  orgId String @db.Uuid
+  requestId String @db.Uuid
+  teamId String @db.Uuid
+  actorId String @db.Uuid
+  payloadHash String
+  createdAt DateTime @default(now())
+  team Team @relation(fields:[orgId, teamId], references:[orgId,id], onDelete:Restrict)
+  @@id([orgId,requestId])
+}
+
 model Team {
+  buildRequests TeamBuildRequest[]
   id              String       @id @default(uuid()) @db.Uuid
   orgId           String       @db.Uuid
   name            String

@@ -236,194 +236,274 @@ export class InsightService {
           throw new ForbiddenException();
         const mode = full ? "TEAM" : own ? "PERSONAL" : "ROSTER";
         const now = this.clock.now();
-        const allowedSubjects = current
-          .filter((m) => full || m.membershipId === viewer.id)
-          .map((m) => m.membershipId);
-        const pairs: [string, string][] = [];
-        for (let i = 0; i < current.length; i++)
-          for (let j = i + 1; j < current.length; j++) {
-            const a = current[i]!.membershipId,
-              b = current[j]!.membershipId;
-            if (
-              focus &&
-              (a === focus || b === focus) &&
-              (full || a === viewer.id || b === viewer.id)
-            )
-              pairs.push(canonical(a, b));
-          }
-        const activeSkills = await tx.skill.findMany({
-          where: { orgId, active: true },
-          select: { id: true, name: true },
-          orderBy: { name: "asc" },
-        });
-        const cachedSkills = await tx.skillInsight.findMany({
-          where: {
-            orgId,
-            membershipId: { in: allowedSubjects },
-            modelVersion: MODEL_VERSION,
-          },
-        });
-        const cachedPairs = await tx.pairInsight.findMany({
-          where: {
-            orgId,
-            modelVersion: MODEL_VERSION,
-            OR: pairs.map(([a, b]) => ({
-              firstMembershipId: a,
-              secondMembershipId: b,
-            })),
-          },
-        });
-        const old = (value: { computedAt: Date; details: unknown }) =>
-          !value.details;
-        const missingSubjects = allowedSubjects.filter((id) =>
-          activeSkills.some((skill) => {
-            const c = cachedSkills.find(
-              (v) => v.membershipId === id && v.skillId === skill.id,
-            );
-            return !c || old(c);
-          }),
-        );
-        const missingPairs = pairs.filter(([a, b]) => {
-          const c = cachedPairs.find(
-            (p) => p.firstMembershipId === a && p.secondMembershipId === b,
-          );
-          return !c || old(c);
-        });
-        if (missingSubjects.length || missingPairs.length)
-          await this.refresh(tx, orgId, missingSubjects, missingPairs, now);
-        const summaries = await tx.skillInsight.findMany({
-          where: {
-            orgId,
-            membershipId: { in: allowedSubjects },
-            modelVersion: MODEL_VERSION,
-          },
-        });
-        const relationships = await tx.pairInsight.findMany({
-          where: {
-            orgId,
-            modelVersion: MODEL_VERSION,
-            OR: pairs.map(([a, b]) => ({
-              firstMembershipId: a,
-              secondMembershipId: b,
-            })),
-          },
-        });
-        const company = await tx.organization.findUniqueOrThrow({
-          where: { id: orgId },
-          select: { testMode: true },
-        });
-        return {
-          testMode: company.testMode,
-          team: { id: team.id, name: team.name },
+        return this.project(
+          tx,
+          orgId,
+          viewer,
+          current,
+          team.TeamAccess_team,
+          new Set(full ? current.map((m) => m.membershipId) : []),
+          focus,
+          { id: team.id, name: team.name },
           mode,
-          modelVersion: MODEL_VERSION,
-          computedAt: now,
-          employees: current.map((m) => ({
-            membershipId: m.membershipId,
-            displayName: m.membership.user.displayName,
-            role:
-              team.TeamAccess_team.find(
-                (a) => a.membershipId === m.membershipId,
-              )?.role ?? "EMPLOYEE",
-            isYou: m.membershipId === viewer.id,
-            skillPresentation: full ? "BANDS" : "SUMMARY",
-            profile: {
-              jobTitle: m.membership.jobTitle, department: m.membership.department,
-              location: m.membership.location, photoUpdatedAt: m.membership.photo?.updatedAt ?? null,
-            },
-            skills:
-              full || m.membershipId === viewer.id
-                ? activeSkills.map((skill) => {
-                    const row = summaries.find(
-                      (s) =>
-                        s.membershipId === m.membershipId &&
-                        s.skillId === skill.id,
-                    );
-                    return {
-                      id: skill.id,
-                      name: skill.name,
-                      indicator: skillIndicator(
-                        row!.details as unknown as Estimate,
-                        now.getTime(),
-                      ),
-                    };
-                  })
+          now,
+        );
+      },
+      { timeout: 30000, maxWait: 10000 },
+    );
+  }
+  async project(
+    tx: Tx,
+    orgId: string,
+    viewer: { id: string },
+    current: {
+      membershipId: string;
+      membership: {
+        jobTitle: string | null;
+        department: string | null;
+        location: string | null;
+        user: { displayName: string };
+        photo: { updatedAt: Date } | null;
+      };
+    }[],
+    roles: { membershipId: string; role: string }[],
+    readable: Set<string>,
+    focus: string | undefined,
+    team: { id: string; name: string },
+    mode: string,
+    now: Date,
+  ) {
+    const allowedSubjects = current
+      .filter(
+        (m) => readable.has(m.membershipId) || m.membershipId === viewer.id,
+      )
+      .map((m) => m.membershipId);
+    const pairs: [string, string][] = [];
+    for (let i = 0; i < current.length; i++)
+      for (let j = i + 1; j < current.length; j++) {
+        const a = current[i]!.membershipId,
+          b = current[j]!.membershipId;
+        if (
+          focus &&
+          (a === focus || b === focus) &&
+          ((readable.has(a) && readable.has(b)) ||
+            a === viewer.id ||
+            b === viewer.id)
+        )
+          pairs.push(canonical(a, b));
+      }
+    const activeSkills = await tx.skill.findMany({
+      where: { orgId, active: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    });
+    const cachedSkills = await tx.skillInsight.findMany({
+      where: {
+        orgId,
+        membershipId: { in: allowedSubjects },
+        modelVersion: MODEL_VERSION,
+      },
+    });
+    const cachedPairs = await tx.pairInsight.findMany({
+      where: {
+        orgId,
+        modelVersion: MODEL_VERSION,
+        OR: pairs.map(([a, b]) => ({
+          firstMembershipId: a,
+          secondMembershipId: b,
+        })),
+      },
+    });
+    const old = (value: { computedAt: Date; details: unknown }) =>
+      !value.details;
+    const missingSubjects = allowedSubjects.filter((id) =>
+      activeSkills.some((skill) => {
+        const c = cachedSkills.find(
+          (v) => v.membershipId === id && v.skillId === skill.id,
+        );
+        return !c || old(c);
+      }),
+    );
+    const missingPairs = pairs.filter(([a, b]) => {
+      const c = cachedPairs.find(
+        (p) => p.firstMembershipId === a && p.secondMembershipId === b,
+      );
+      return !c || old(c);
+    });
+    if (missingSubjects.length || missingPairs.length)
+      await this.refresh(tx, orgId, missingSubjects, missingPairs, now);
+    const summaries = await tx.skillInsight.findMany({
+      where: {
+        orgId,
+        membershipId: { in: allowedSubjects },
+        modelVersion: MODEL_VERSION,
+      },
+    });
+    const relationships = await tx.pairInsight.findMany({
+      where: {
+        orgId,
+        modelVersion: MODEL_VERSION,
+        OR: pairs.map(([a, b]) => ({
+          firstMembershipId: a,
+          secondMembershipId: b,
+        })),
+      },
+    });
+    const company = await tx.organization.findUniqueOrThrow({
+      where: { id: orgId },
+      select: { testMode: true },
+    });
+    return {
+      testMode: company.testMode,
+      team,
+      mode,
+      modelVersion: MODEL_VERSION,
+      computedAt: now,
+      employees: current.map((m) => ({
+        membershipId: m.membershipId,
+        displayName: m.membership.user.displayName,
+        role:
+          roles.find((a) => a.membershipId === m.membershipId)?.role ??
+          "EMPLOYEE",
+        isYou: m.membershipId === viewer.id,
+        skillPresentation: readable.has(m.membershipId) ? "BANDS" : "SUMMARY",
+        profile: {
+          jobTitle: m.membership.jobTitle,
+          department: m.membership.department,
+          location: m.membership.location,
+          photoUpdatedAt: m.membership.photo?.updatedAt ?? null,
+        },
+        skills:
+          readable.has(m.membershipId) || m.membershipId === viewer.id
+            ? activeSkills.map((skill) => {
+                const row = summaries.find(
+                  (s) =>
+                    s.membershipId === m.membershipId && s.skillId === skill.id,
+                );
+                return {
+                  id: skill.id,
+                  name: skill.name,
+                  indicator: skillIndicator(
+                    row!.details as unknown as Estimate,
+                    now.getTime(),
+                  ),
+                };
+              })
+            : null,
+      })),
+      relationships: relationships
+        .filter((p) =>
+          pairs.some(
+            ([a, b]) => a === p.firstMembershipId && b === p.secondMembershipId,
+          ),
+        )
+        .map((p) => {
+          const d = p.details as unknown as PairDetails;
+          const involved =
+            p.firstMembershipId === viewer.id ||
+            p.secondMembershipId === viewer.id;
+          const unrestricted =
+            readable.has(p.firstMembershipId) &&
+            readable.has(p.secondMembershipId) &&
+            !involved;
+          const firstAllowed =
+              unrestricted || p.firstMembershipId === viewer.id,
+            secondAllowed = unrestricted || p.secondMembershipId === viewer.id;
+          const combined =
+            p.combinedScore === null
+              ? null
+              : {
+                  score: p.combinedScore,
+                  reports: Math.min(
+                    d.firstEffectiveness.reports,
+                    d.secondEffectiveness.reports,
+                  ),
+                  reviewers: 2,
+                  firstAt: d.firstEffectiveness.firstAt,
+                  lastAt: new Date(
+                    Math.min(
+                      Date.parse(d.firstEffectiveness.lastAt!),
+                      Date.parse(d.secondEffectiveness.lastAt!),
+                    ),
+                  ).toISOString(),
+                };
+          return {
+            firstMembershipId: p.firstMembershipId,
+            secondMembershipId: p.secondMembershipId,
+            visibility: unrestricted ? "BOTH_DIRECTIONS" : "OWN_EXPERIENCE",
+            firstToSecond: firstAllowed
+              ? {
+                  enjoyment: indicator(d.firstEnjoyment, now.getTime(), true),
+                  effectiveness: indicator(
+                    d.firstEffectiveness,
+                    now.getTime(),
+                    true,
+                  ),
+                }
+              : null,
+            secondToFirst: secondAllowed
+              ? {
+                  enjoyment: indicator(d.secondEnjoyment, now.getTime(), true),
+                  effectiveness: indicator(
+                    d.secondEffectiveness,
+                    now.getTime(),
+                    true,
+                  ),
+                }
+              : null,
+            combined:
+              unrestricted && combined
+                ? indicator(combined, now.getTime(), true)
                 : null,
-          })),
-          relationships: relationships
-            .filter((p) =>
-              pairs.some(
-                ([a, b]) =>
-                  a === p.firstMembershipId && b === p.secondMembershipId,
-              ),
-            )
-            .map((p) => {
-              const d = p.details as unknown as PairDetails;
-              const involved =
-                p.firstMembershipId === viewer.id ||
-                p.secondMembershipId === viewer.id;
-              const unrestricted = full && !involved;
-              const firstAllowed =
-                  unrestricted || p.firstMembershipId === viewer.id,
-                secondAllowed =
-                  unrestricted || p.secondMembershipId === viewer.id;
-              const combined =
-                p.combinedScore === null
-                  ? null
-                  : {
-                      score: p.combinedScore,
-                      reports: Math.min(
-                        d.firstEffectiveness.reports,
-                        d.secondEffectiveness.reports,
-                      ),
-                      reviewers: 2,
-                      firstAt: d.firstEffectiveness.firstAt,
-                      lastAt: new Date(
-                        Math.min(
-                          Date.parse(d.firstEffectiveness.lastAt!),
-                          Date.parse(d.secondEffectiveness.lastAt!),
-                        ),
-                      ).toISOString(),
-                    };
-              return {
-                firstMembershipId: p.firstMembershipId,
-                secondMembershipId: p.secondMembershipId,
-                visibility: unrestricted ? "BOTH_DIRECTIONS" : "OWN_EXPERIENCE",
-                firstToSecond: firstAllowed
-                  ? {
-                      enjoyment: indicator(
-                        d.firstEnjoyment,
-                        now.getTime(),
-                        true,
-                      ),
-                      effectiveness: indicator(
-                        d.firstEffectiveness,
-                        now.getTime(),
-                        true,
-                      ),
-                    }
-                  : null,
-                secondToFirst: secondAllowed
-                  ? {
-                      enjoyment: indicator(
-                        d.secondEnjoyment,
-                        now.getTime(),
-                        true,
-                      ),
-                      effectiveness: indicator(
-                        d.secondEffectiveness,
-                        now.getTime(),
-                        true,
-                      ),
-                    }
-                  : null,
-                combined:
-                  unrestricted && combined
-                    ? indicator(combined, now.getTime(), true)
-                    : null,
-              };
-            }),
-        };
+          };
+        }),
+    };
+  }
+
+  async ownCard(userId: string, orgId: string) {
+    const viewer = await this.workspace.member(userId, orgId);
+    return this.db.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`SELECT 1 FROM pg_advisory_xact_lock(hashtextextended(${orgId},0))`;
+        const membership = await tx.membership.findFirstOrThrow({
+          where: { orgId, id: viewer.id, active: true },
+          include: {
+            user: { select: { displayName: true } },
+            photo: { select: { updatedAt: true } },
+          },
+        });
+        const view = await this.project(
+          tx,
+          orgId,
+          viewer,
+          [{ membershipId: viewer.id, membership }],
+          [],
+          new Set(),
+          undefined,
+          { id: orgId, name: "Your company" },
+          "PERSONAL",
+          this.clock.now(),
+        );
+        const role =
+          viewer.role === "EMPLOYEE"
+            ? ((
+                await tx.teamAccess.findFirst({
+                  where: {
+                    orgId,
+                    membershipId: viewer.id,
+                    team: {
+                      OR: [
+                        { endsAt: null },
+                        { endsAt: { gt: this.clock.now() } },
+                      ],
+                    },
+                  },
+                  orderBy: { role: "asc" },
+                  select: { role: true },
+                })
+              )?.role ?? "EMPLOYEE")
+            : viewer.role;
+        return { ...view.employees[0]!, role };
       },
       { timeout: 30000, maxWait: 10000 },
     );
@@ -440,7 +520,10 @@ export class InsightService {
           },
           include: {
             membership: {
-              include: { user: { select: { displayName: true } }, photo: {select: {updatedAt: true}} },
+              include: {
+                user: { select: { displayName: true } },
+                photo: { select: { updatedAt: true } },
+              },
             },
           },
           orderBy: { joinedAt: "asc" },
@@ -469,5 +552,15 @@ export class InsightController {
       input.uuid(team),
       query.focus === undefined ? undefined : input.uuid(query.focus),
     );
+  }
+}
+
+@Controller("organizations/:orgId")
+@UseGuards(AuthGuard)
+export class PersonalCardController {
+  constructor(private readonly insights: InsightService) {}
+  @Get("my-card")
+  card(@Req() req: AuthRequest, @Param("orgId") org: string) {
+    return this.insights.ownCard(req.actor.userId, input.uuid(org));
   }
 }
