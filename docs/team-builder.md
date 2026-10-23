@@ -2,8 +2,10 @@
 
 The first team builder creates and edits real teams. It is a manual planning tool:
 select employees, review permitted skill evidence, focus a person to inspect
-chemistry, and explicitly save. It does not create task groups, fabricate an
-aggregate fit score, automatically choose an optimal team or generate surveys.
+chemistry, and explicitly save. Open it directly from **My teams** using **Create
+team** or **Edit in team builder**; the latter loads that specific team. The builder
+does not create task groups, assign a calibrated success probability, automatically
+choose an optimal team or generate surveys.
 
 ## Permissions and feedback
 
@@ -124,3 +126,52 @@ Pull the frontend checkout and restart `npm.cmd run dev`.
 preview redaction, no-survey creation, atomic failures, history preservation,
 concurrent stale saves and request replay. Existing insight, authentication and
 survey suites continue to exercise the shared permissions and projections.
+
+
+## Lineup, chemistry and fit ordering
+
+The selected team is a compact player-card lineup. Candidates appear as small
+cards in a right-hand rail on desktop. Drag a candidate into the lineup to add
+them; drag a selected card back to the rail to remove them. Add/Remove buttons
+provide the same operation for keyboard and touch users. Duplicate drops are
+no-ops, unknown employee IDs are ignored, and saving still requires an explicit
+save action. On narrow screens the candidate rail stacks below the lineup.
+Focused cards retain all skills in two columns with evidence counts available on
+hover, while relationship details remain outside the card. Individual numeric
+scores remain internal.
+
+`POST /team-builder/preview` now also returns `teamAnalysis` and ordered
+`recommendations`. Team analysis is computed from the saved pair estimates for
+the current composition. A working relationship is established only when both
+directions have at least three weekly observations and are no older than 126 days,
+matching the existing chemistry indicator rules. Enjoyment remains visible in
+permitted relationship details; the aggregate uses reported effectiveness.
+
+- `chemistry` is the equal-weight mean of established pair effectiveness estimates,
+  rounded to the nearest five on a 0–100 scale. It is not an individual score.
+- Unknown, early, one-sided and older pairs contribute no invented rating. Partial
+  coverage produces `evidence: LIMITED`, with visible known/total connection counts.
+  No established connections means a null number, rather than a false low score.
+- The whole-team number is withheld (`RESTRICTED`) if any pair is outside the
+  viewer's access, including relationships involving the viewer. Such hidden
+  feedback never affects recommendation ordering either.
+- Aggregate labels are “Good chemistry” from 80, “Mixed chemistry” from 60 and
+  “Chemistry may need attention” below 60. Strong/low teamwork-potential text needs
+  established feedback for at least 60% of team connections; otherwise more
+  feedback is requested. These are feedback-based signals, not probabilities.
+
+Candidate ranking is a first heuristic. It uses the same five coarse categories
+as employee cards, not exact individual numeric values. When both exist it weighs
+visible chemistry categories 70% and skill categories 30%. Missing permitted
+chemistry links are neutral (middle category); restricted links are excluded.
+Skills-only candidates are explicitly labelled “chemistry unknown”. Candidates
+with no established evidence are shown separately as unknown, not given a negative
+rating. Ties use evidence coverage and then name/ID for deterministic ordering.
+The API returns only fit categories, reasons, evidence counts and order; internal
+ranking values and pair/employee scores are never serialized.
+
+The preview backfills missing pair summaries only for real historical chemistry
+answers, then reuses the existing persisted caches. Draft analysis changes no
+employee scoring formula and requires no schema migration or new dependency.
+The team-fit unit tests and database projection tests cover boundary evidence,
+missing data, ranking stability, real-history backfill and self/role privacy.

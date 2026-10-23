@@ -85,3 +85,8 @@ permission-scoped skill/chemistry previews and atomic team creation/editing. The
 personal card endpoint powers the shared workspace account popup. Apply the
 additive retry-receipt migration when updating; existing team and survey history
 is preserved.
+
+Team builder previews now include an approximate whole-team chemistry number,
+evidence coverage and a best-fit candidate order. Individual scores and private
+incoming feedback stay internal. See [team analysis](docs/team-builder.md#lineup-chemistry-and-fit-ordering)
+for the heuristic, privacy and missing-evidence rules. No new migration is needed.

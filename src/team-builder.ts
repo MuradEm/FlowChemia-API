@@ -17,6 +17,9 @@ import {
 import { createHash } from "node:crypto";
 import { Database } from "./database.js";
 import { InsightService } from "./insights.js";
+import { analyzeTeam } from "./team-fit.js";
+import { indicator, MODEL_VERSION } from "./insight-model.js";
+import type { Estimate } from "./insight-model.js";
 import { Clock } from "./clock.js";
 import { AuthGuard, type AuthRequest } from "./auth.js";
 import * as input from "./input.js";
@@ -249,20 +252,147 @@ export class TeamBuilderService {
           throw new NotFoundException("Candidate not available");
         if (focus && !selected.includes(focus))
           throw new BadRequestException("Select the employee before focusing");
-        return this.insights.project(
+        const now = this.clock.now();
+        const all = await this.insights.project(
           tx,
           orgId,
           s.viewer,
-          people
-            .filter((p) => selected.includes(p.id))
-            .map((m) => ({ membershipId: m.id, membership: m })),
+          people.map((m) => ({ membershipId: m.id, membership: m })),
           [],
           readable,
-          focus,
+          undefined,
           { id: orgId, name: "Draft team" },
           "TEAM",
-          this.clock.now(),
+          now,
         );
+        const view = focus
+          ? await this.insights.project(
+              tx,
+              orgId,
+              s.viewer,
+              people
+                .filter((p) => selected.includes(p.id))
+                .map((m) => ({ membershipId: m.id, membership: m })),
+              [],
+              readable,
+              focus,
+              { id: orgId, name: "Draft team" },
+              "TEAM",
+              now,
+            )
+          : {
+              ...all,
+              employees: all.employees.filter((e) =>
+                selected.includes(e.membershipId),
+              ),
+            };
+        const personIds = people.map((p) => p.id);
+        // Backfill only pairs that have actual chemistry answers, not every hypothetical pairing.
+        const observed = selected.length
+          ? await tx.$queryRaw<{ first: string; second: string }[]>`
+          SELECT DISTINCT LEAST(r."membershipId",s."membershipId") AS first, GREATEST(r."membershipId",s."membershipId") AS second
+          FROM "Answer" a JOIN "Assignment" x ON x.id=a."assignmentId" AND x."orgId"=a."orgId"
+          JOIN "QuestionVersion" q ON q.id=a."questionVersionId" AND q."orgId"=a."orgId"
+          JOIN "TeamMember" r ON r.id=x."respondentTeamMemberId" AND r."orgId"=x."orgId"
+          JOIN "TeamMember" s ON s.id=x."subjectTeamMemberId" AND s."orgId"=x."orgId"
+          WHERE a."orgId"=${orgId}::uuid AND x.status='COMPLETED' AND x."submittedAt"<=${now} AND a.rating IS NOT NULL
+          AND q.dimension IN ('CHEMISTRY_ENJOYMENT','CHEMISTRY_EFFECTIVENESS')
+          AND r."membershipId"=ANY(${personIds}::uuid[]) AND s."membershipId"=ANY(${personIds}::uuid[])
+          AND (r."membershipId"=ANY(${selected}::uuid[]) OR s."membershipId"=ANY(${selected}::uuid[]))
+        `
+          : [];
+        const query = {
+          orgId,
+          modelVersion: MODEL_VERSION,
+          firstMembershipId: { in: personIds },
+          secondMembershipId: { in: personIds },
+          OR: [
+            { firstMembershipId: { in: selected } },
+            { secondMembershipId: { in: selected } },
+          ],
+        };
+        let rows = await tx.pairInsight.findMany({ where: query });
+        const missing = observed.filter(
+          (p) =>
+            readable.has(p.first) &&
+            readable.has(p.second) &&
+            p.first !== s.viewer.id &&
+            p.second !== s.viewer.id &&
+            !rows.some(
+              (r) =>
+                r.firstMembershipId === p.first &&
+                r.secondMembershipId === p.second &&
+                r.details,
+            ),
+        );
+        if (missing.length) {
+          await this.insights.refresh(
+            tx,
+            orgId,
+            [],
+            missing.map((p) => [p.first, p.second]),
+            now,
+          );
+          rows = await tx.pairInsight.findMany({ where: query });
+        }
+        const pairs = rows.map((row) => {
+          const d = row.details as unknown as {
+            firstEffectiveness: Estimate;
+            secondEffectiveness: Estimate;
+          } | null;
+          const a = d?.firstEffectiveness,
+            b = d?.secondEffectiveness;
+          const points = a && b ? (a.score + b.score) / 2 : 0;
+          const value =
+            a && b
+              ? indicator(
+                  {
+                    score: points,
+                    reports: Math.min(a.reports, b.reports),
+                    reviewers: 2,
+                    firstAt: null,
+                    lastAt:
+                      a.lastAt && b.lastAt
+                        ? new Date(
+                            Math.min(
+                              Date.parse(a.lastAt),
+                              Date.parse(b.lastAt),
+                            ),
+                          ).toISOString()
+                        : null,
+                  },
+                  now.getTime(),
+                  true,
+                )
+              : null;
+          return {
+            first: row.firstMembershipId,
+            second: row.secondMembershipId,
+            points,
+            established:
+              !!value &&
+              ["POSITIVE", "MIXED", "DIFFICULT"].includes(value.state),
+          };
+        });
+        const bands = ["RED", "ORANGE", "YELLOW", "LIGHT_GREEN", "GREEN"];
+        return {
+          ...view,
+          ...analyzeTeam(
+            all.employees.map((p) => ({
+              id: p.membershipId,
+              name: p.displayName,
+              bands: (p.skills ?? []).flatMap((skill) =>
+                skill.indicator.band
+                  ? [bands.indexOf(skill.indicator.band) + 1]
+                  : [],
+              ),
+            })),
+            selected,
+            pairs,
+            readable,
+            s.viewer.id,
+          ),
+        };
       },
       { timeout: 30000, maxWait: 10000 },
     );

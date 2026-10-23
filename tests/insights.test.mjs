@@ -357,6 +357,29 @@ test("persisted insights and role-specific team projections", async (t) => {
       assert.deepEqual(own.skills.map(s=>s.indicator.label),['Room for improvement','Room for improvement','On the way','Doing well','Doing well']);
       assert.ok(!/"score":/.test(JSON.stringify(manager)));
     });
+    await t.test(
+      "builder analysis backfills real historical chemistry without drawing overview connections",
+      async () => {
+        await db.query('DELETE FROM "PairInsight" WHERE "orgId"=$1', [org]);
+        const view = await req(
+          "POST",
+          root + "/team-builder/preview",
+          hr.token,
+          { membershipIds: [alice.id, bob.id] },
+        );
+        assert.equal(view.relationships.length, 0);
+        assert.ok(
+          (
+            await db.query(
+              'SELECT count(*)::int n FROM "PairInsight" WHERE "orgId"=$1',
+              [org],
+            )
+          ).rows[0].n > 0,
+        );
+        assert.ok(view.teamAnalysis);
+        assert.ok(!/"(score|points|details)":/.test(JSON.stringify(view)));
+      },
+    );
   } finally {
     await app?.close();
     await db?.end();

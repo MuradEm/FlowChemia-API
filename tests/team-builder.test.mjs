@@ -429,6 +429,66 @@ test("team builder scopes previews and saves teams atomically with safe replays"
       },
     );
     await t.test(
+      "team aggregates and recommendation order use only established permitted evidence",
+      async () => {
+        const estimate = (score) => ({
+          score,
+          reports: 6,
+          reviewers: 2,
+          firstAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+          lastAt: new Date().toISOString(),
+        });
+        async function seed(a, b, points) {
+          const [first, second] = [a, b].sort();
+          const details = {
+            firstEnjoyment: estimate(points),
+            secondEnjoyment: estimate(points),
+            firstEffectiveness: estimate(points),
+            secondEffectiveness: estimate(points),
+          };
+          await db.query(
+            'INSERT INTO "PairInsight" (id,"orgId","firstMembershipId","secondMembershipId","combinedScore","firstToSecondScore","secondToFirstScore","modelVersion",details) VALUES ($1,$2,$3,$4,$5,$5,$5,$6,$7::jsonb) ON CONFLICT ("orgId","firstMembershipId","secondMembershipId","modelVersion") DO UPDATE SET details=EXCLUDED.details,"combinedScore"=EXCLUDED."combinedScore"',
+            [
+              randomUUID(),
+              org,
+              first,
+              second,
+              points,
+              "baseline-70-v1",
+              JSON.stringify(details),
+            ],
+          );
+        }
+        await seed(alice.id, bob.id, 85);
+        await seed(alice.id, carla.id, 90);
+        await seed(bob.id, carla.id, 80);
+        for (const p of [alice, bob, carla]) {
+          await seed(p.id, outsider.id, 95);
+          await seed(p.id, manager.id, 40);
+        }
+        const view = await req("POST", builder + "/preview", hr.token, {
+          membershipIds: [alice.id, bob.id, carla.id],
+        });
+        assert.equal(view.teamAnalysis.chemistry, 85);
+        assert.equal(view.teamAnalysis.evidence, "ESTABLISHED");
+        assert.equal(view.teamAnalysis.knownPairs, 3);
+        assert.equal(view.relationships.length, 0);
+        assert.equal(view.recommendations[0].membershipId, outsider.id);
+        assert.ok(
+          !/"(score|points|_value|combinedScore)":/.test(JSON.stringify(view)),
+        );
+        const own = await req("POST", builder + "/preview", manager.token, {
+          membershipIds: [bob.id, carla.id, manager.id],
+        });
+        assert.equal(own.teamAnalysis.chemistry, null);
+        assert.equal(own.teamAnalysis.evidence, "RESTRICTED");
+        const roster = await req("POST", builder + "/preview", owner, {
+          membershipIds: [alice.id, bob.id],
+        });
+        assert.equal(roster.teamAnalysis.chemistry, null);
+      },
+    );
+    await t.test(
       "company isolation, role revocation and inactive membership are enforced",
       async () => {
         const other = await req(
