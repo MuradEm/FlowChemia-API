@@ -4,8 +4,14 @@ export type FitPair = {
   second: string;
   points: number;
   established: boolean;
+  observed?: boolean;
 };
-export type FitPerson = { id: string; name: string; bands: number[] };
+export type FitPerson = {
+  id: string;
+  name: string;
+  bands: number[];
+  limitedSkills?: boolean;
+};
 export function analyzeTeam(
   people: FitPerson[],
   selectedIds: string[],
@@ -24,7 +30,7 @@ export function analyzeTeam(
       if (permitted(ids[i]!, ids[j]!)) visiblePairs++;
   const known = pairs.filter(
     (p) =>
-      p.established &&
+      (p.observed ?? p.established) &&
       selected.has(p.first) &&
       selected.has(p.second) &&
       permitted(p.first, p.second),
@@ -46,7 +52,7 @@ export function analyzeTeam(
     ? "RESTRICTED"
     : !known.length
       ? "NONE"
-      : known.length === totalPairs
+      : known.length === totalPairs && known.every((p) => p.established)
         ? "ESTABLISHED"
         : "LIMITED";
   const label = restricted
@@ -63,7 +69,7 @@ export function analyzeTeam(
   const teamwork =
     chemistry === null
       ? "More visible feedback is needed to assess teamwork"
-      : known.length / totalPairs < 0.6
+      : known.filter((p) => p.established).length / totalPairs < 0.6
         ? "More feedback is needed to assess teamwork"
         : chemistry >= 80
           ? "Strong teamwork potential"
@@ -77,7 +83,7 @@ export function analyzeTeam(
     .map((person) => {
       const links = pairs.filter(
         (p) =>
-          p.established &&
+          (p.observed ?? p.established) &&
           permitted(p.first, p.second) &&
           ((p.first === person.id && selected.has(p.second)) ||
             (p.second === person.id && selected.has(p.first))),
@@ -123,8 +129,8 @@ export function analyzeTeam(
                   : "May need support";
       const reasons = [
         links.length
-          ? `${links.length} established working relationship${links.length === 1 ? "" : "s"} with the selected team.`
-          : "No established comparable chemistry in your view.",
+          ? `${links.length} reported working relationship${links.length === 1 ? "" : "s"} with the selected team.`
+          : "No comparable chemistry in your view.",
         ...(person.bands.length
           ? [
               `Current feedback in ${person.bands.length} skill${person.bands.length === 1 ? "" : "s"}.`,
@@ -135,6 +141,10 @@ export function analyzeTeam(
         membershipId: person.id,
         fit,
         label,
+        limitedEvidence:
+          links.some((p) => !p.established) ||
+          links.length < ids.length ||
+          !!person.limitedSkills,
         knownLinks: links.length,
         possibleLinks: ids.length,
         reasons,

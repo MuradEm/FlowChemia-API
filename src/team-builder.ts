@@ -369,6 +369,7 @@ export class TeamBuilderService {
             first: row.firstMembershipId,
             second: row.secondMembershipId,
             points,
+            observed: !!a?.reports && !!b?.reports,
             established:
               !!value &&
               ["POSITIVE", "MIXED", "DIFFICULT"].includes(value.state),
@@ -381,6 +382,9 @@ export class TeamBuilderService {
             all.employees.map((p) => ({
               id: p.membershipId,
               name: p.displayName,
+              limitedSkills: (p.skills ?? []).some((skill) =>
+                ["EARLY", "OLDER"].includes(skill.indicator.state),
+              ),
               bands: (p.skills ?? []).flatMap((skill) =>
                 skill.indicator.band
                   ? [bands.indexOf(skill.indicator.band) + 1]

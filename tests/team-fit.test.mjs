@@ -112,3 +112,33 @@ test("recommendations rank team-specific category evidence, keep unknown separat
   assert.equal(empty.teamAnalysis.chemistry, null);
   assert.match(empty.recommendations[0].label, /skill feedback/);
 });
+
+test("early two-way feedback yields a provisional total without exposing hidden pairs", () => {
+  const early = { ...pair("a", "b", 72, false), observed: true };
+  const result = analyzeTeam(
+    people,
+    ["a", "b"],
+    [early],
+    readable,
+    "hr",
+  ).teamAnalysis;
+  assert.equal(result.chemistry, 70);
+  assert.equal(result.evidence, "LIMITED");
+  assert.equal(result.knownPairs, 1);
+  assert.match(result.teamwork, /More feedback/);
+  assert.equal(
+    analyzeTeam(people, ["a", "b"], [early], readable, "a").teamAnalysis
+      .chemistry,
+    null,
+  );
+  assert.equal(
+    analyzeTeam(
+      people,
+      ["a", "b"],
+      [{ ...early, observed: false }],
+      readable,
+      "hr",
+    ).teamAnalysis.chemistry,
+    null,
+  );
+});

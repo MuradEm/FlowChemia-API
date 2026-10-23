@@ -147,11 +147,12 @@ directions have at least three weekly observations and are no older than 126 day
 matching the existing chemistry indicator rules. Enjoyment remains visible in
 permitted relationship details; the aggregate uses reported effectiveness.
 
-- `chemistry` is the equal-weight mean of established pair effectiveness estimates,
+- `chemistry` is the equal-weight mean of observed two-way pair effectiveness estimates,
   rounded to the nearest five on a 0–100 scale. It is not an individual score.
-- Unknown, early, one-sided and older pairs contribute no invented rating. Partial
-  coverage produces `evidence: LIMITED`, with visible known/total connection counts.
-  No established connections means a null number, rather than a false low score.
+- Unknown and one-sided pairs contribute no invented rating. Early and older
+  two-way feedback contributes provisionally. Partial
+  coverage or any early/older pair produces `evidence: LIMITED`, with visible known/total connection counts.
+  No observed two-way connections means a null number, rather than a false low score.
 - The whole-team number is withheld (`RESTRICTED`) if any pair is outside the
   viewer's access, including relationships involving the viewer. Such hidden
   feedback never affects recommendation ordering either.
@@ -165,7 +166,7 @@ as employee cards, not exact individual numeric values. When both exist it weigh
 visible chemistry categories 70% and skill categories 30%. Missing permitted
 chemistry links are neutral (middle category); restricted links are excluded.
 Skills-only candidates are explicitly labelled “chemistry unknown”. Candidates
-with no established evidence are shown separately as unknown, not given a negative
+with no observed evidence are shown separately as unknown, not given a negative
 rating. Ties use evidence coverage and then name/ID for deterministic ordering.
 The API returns only fit categories, reasons, evidence counts and order; internal
 ranking values and pair/employee scores are never serialized.
@@ -175,3 +176,11 @@ answers, then reuses the existing persisted caches. Draft analysis changes no
 employee scoring formula and requires no schema migration or new dependency.
 The team-fit unit tests and database projection tests cover boundary evidence,
 missing data, ranking stability, real-history backfill and self/role privacy.
+
+The visual workspace puts the focused employee on the left and compact connected
+teammates to the right, with directional experiences available through disclosure.
+The side rail contains a team chemistry ring and the draggable candidate list;
+team setup is below the canvas. Early colours are visible from actual feedback,
+with an evidence icon on provisional fit suggestions, skills and chemistry.
+The teamwork-potential threshold still requires established evidence; early
+colours do not imply a validated prediction. No storage or schema changes.

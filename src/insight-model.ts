@@ -20,6 +20,7 @@ export type Estimate = {
 export type Indicator = {
   state: "UNKNOWN" | "EARLY" | "OLDER" | "POSITIVE" | "MIXED" | "DIFFICULT";
   label: string;
+  tone: "UNKNOWN" | "POSITIVE" | "MIXED" | "DIFFICULT";
   reports: number;
   reviewers: number;
   firstAt: string | null;
@@ -91,6 +92,13 @@ export function indicator(
         : value.score >= 65
           ? "MIXED"
           : "DIFFICULT";
+  const tone = !value.reports
+    ? "UNKNOWN"
+    : value.score >= 80
+      ? "POSITIVE"
+      : value.score >= 65
+        ? "MIXED"
+        : "DIFFICULT";
   const labels = {
     UNKNOWN: "Not observed",
     EARLY: "Early feedback",
@@ -102,7 +110,8 @@ export function indicator(
   // Explicit allow-list: numerical scores and source identities never leave the API.
   return {
     state,
-    label: labels[state],
+    label: labels[tone],
+    tone,
     reports: value.reports,
     reviewers: value.reviewers,
     firstAt: value.firstAt,
@@ -116,8 +125,7 @@ export function skillIndicator(
   now: number,
 ): Indicator & { band: SkillBand | null } {
   const result = indicator(value, now, false, true);
-  if (["UNKNOWN", "EARLY", "OLDER"].includes(result.state))
-    return { ...result, band: null };
+  if (result.state === "UNKNOWN") return { ...result, band: null };
   // Shared boundaries belong to the next band: 20 is orange, 80 is green.
   const band: SkillBand =
     value.score < 20

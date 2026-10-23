@@ -79,14 +79,32 @@ test("five skill bands use fixed boundaries without exposing scores or turning a
   assert.equal(skillIndicator(estimate([], now), now).band, null);
   assert.equal(
     skillIndicator({ ...mature, score: 90, reports: 2 }, now).band,
-    null,
+    "GREEN",
   );
   assert.equal(
     skillIndicator({ ...mature, score: 90, reviewers: 1 }, now).band,
-    null,
+    "GREEN",
   );
   assert.equal(
     skillIndicator({ ...mature, score: 90 }, now + 127 * day).band,
-    null,
+    "GREEN",
   );
+});
+
+test("early and older colours retain evidence state and baseline-only remains unknown", async () => {
+  const { skillIndicator } = await import("../src/insight-model.ts");
+  const early = estimate([row(100)], now),
+    result = skillIndicator(early, now);
+  assert.equal(result.state, "EARLY");
+  assert.equal(result.band, "LIGHT_GREEN");
+  assert.equal(result.tone, "MIXED");
+  assert.equal(result.reports, 1);
+  assert.equal(result.label, "Doing well");
+  assert.equal(indicator(early, now, true).label, "Mixed observations");
+  assert.equal(skillIndicator(early, now + 127 * day).state, "OLDER");
+  assert.equal(skillIndicator(early, now + 127 * day).band, "LIGHT_GREEN");
+  const unknown = skillIndicator(estimate([], now), now);
+  assert.equal(unknown.band, null);
+  assert.equal(unknown.tone, "UNKNOWN");
+  assert.ok(!("score" in result));
 });

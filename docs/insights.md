@@ -80,13 +80,13 @@ These conservative presentation rules are a first version for review, not
 calibrated confidence or a validated evaluation of employee ability:
 
 - No actual observations: `UNKNOWN` / Not observed, neutral line.
-- Latest observation older than 126 days: `OLDER` / Older feedback, neutral.
+- Latest observation older than 126 days: `OLDER`, retain the colour with a stale-evidence icon.
 - Skills with fewer than five reviewer-week units or fewer than two distinct
-  colleagues: `EARLY` / Early feedback, neutral.
-- Each relationship direction needs at least three observed weekly units before
-  a coloured interpretation. Combined effectiveness requires that level in both
-  directions; its evidence count is the minimum weekly units per direction.
-- Otherwise: at least 80 positive; 65–under-80 mixed; under 65 may need support /
+  colleagues: `EARLY`, show the current colour with a provisional-evidence icon.
+- Directional colours appear with the first actual observation. Fewer than three
+  weekly units is `EARLY`; combined effectiveness needs actual feedback in both
+  directions. Its evidence count is the minimum weekly units per direction.
+- Colour tone: at least 80 positive; 65–under-80 mixed; under 65 may need support /
   difficult experience. Colours always have text/icons. Baseline-only values never
   produce positive lines. No overall employee score or employee ranking is added.
 
@@ -106,3 +106,9 @@ Browser verification used a disposable database and real API/Vite proxy: overvie
 with zero lines, focused-only connections, keyboard activation, private manager
 views, owner roster-only actions, team switching, no browser storage, axe AA and
 320/390/768/1024/1440 widths.
+
+`state` retains evidence maturity (`UNKNOWN`, `EARLY`, `OLDER`) independently of
+`tone` (unknown/positive/mixed/difficult) and skill `band`. Available feedback is
+coloured immediately; evidence icons expose the counts or age warning on hover
+and keyboard focus. No-feedback baselines stay neutral. Stored estimates and the
+calculation version are unchanged; no migration is needed.
